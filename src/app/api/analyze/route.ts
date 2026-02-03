@@ -15,6 +15,48 @@ const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 // API timeout: 30 seconds
 const API_TIMEOUT = 30000;
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.2";
+
+const MEAL_ANALYSIS_JSON_SCHEMA = {
+  type: "json_schema",
+  name: "meal_analysis",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      totalCalories: { type: "number" },
+      macros: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          protein: { type: "number" },
+          carbohydrates: { type: "number" },
+          fat: { type: "number" },
+          fiber: { type: ["number", "null"] },
+        },
+        required: ["protein", "carbohydrates", "fat", "fiber"],
+      },
+      foodItems: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            name: { type: "string" },
+            estimatedPortion: { type: "string" },
+            calories: { type: "number" },
+          },
+          required: ["name", "estimatedPortion", "calories"],
+        },
+      },
+      confidence: { type: "string", enum: ["low", "medium", "high"] },
+      notes: { type: ["string", "null"] },
+    },
+    required: ["totalCalories", "macros", "foodItems", "confidence", "notes"],
+  },
+} as const;
+
 /**
  * Validates base64 image data and checks size
  */
@@ -49,9 +91,21 @@ function validateImageSize(base64: string): { valid: boolean; error?: string } {
 function parseAIResponse(content: string): MealAnalysis | null {
   try {
     const parsed = JSON.parse(content);
-    const validated = MealAnalysisSchema.parse(parsed);
-    return validated;
+    return MealAnalysisSchema.parse(parsed);
   } catch (error) {
+    // Try to recover JSON if the model wrapped it in text
+    const start = content.indexOf("{");
+    const end = content.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      try {
+        const extracted = content.slice(start, end + 1);
+        const parsed = JSON.parse(extracted);
+        return MealAnalysisSchema.parse(parsed);
+      } catch (secondaryError) {
+        console.error("Failed to parse extracted AI response:", secondaryError);
+      }
+    }
+
     console.error("Failed to parse AI response:", error);
     return null;
   }
@@ -69,43 +123,33 @@ async function callOpenAIWithTimeout(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await openai.chat.completions.create(
+    const response = await openai.responses.create(
       {
-        model: "gpt-4o", // Using GPT-4o (vision model) - update to gpt-5.2 when available
-        messages: [
-          {
-            role: "system",
-            content: NUTRITION_SYSTEM_PROMPT,
-          },
+        model: OPENAI_MODEL,
+        instructions: NUTRITION_SYSTEM_PROMPT,
+        input: [
           {
             role: "user",
             content: [
+              { type: "input_text", text: NUTRITION_USER_PROMPT },
               {
-                type: "text",
-                text: NUTRITION_USER_PROMPT,
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:${mimeType};base64,${imageData}`,
-                  detail: "high",
-                },
+                type: "input_image",
+                image_url: `data:${mimeType};base64,${imageData}`,
+                detail: "high",
               },
             ],
           },
         ],
-        response_format: { type: "json_object" },
-        max_tokens: 1000,
-        temperature: 0.3, // Lower for consistency
+        response_format: MEAL_ANALYSIS_JSON_SCHEMA,
+        max_output_tokens: 900,
+        temperature: 0.2,
       },
-      {
-        signal: controller.signal,
-      }
+      { signal: controller.signal }
     );
 
     clearTimeout(timeoutId);
 
-    const content = response.choices[0]?.message?.content;
+    const content = response.output_text?.trim();
     if (!content) {
       throw new Error("No content in AI response");
     }

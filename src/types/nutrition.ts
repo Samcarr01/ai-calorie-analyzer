@@ -18,7 +18,7 @@ export const MacrosSchema = z.object({
   protein: z.number(),
   carbohydrates: z.number(),
   fat: z.number(),
-  fiber: z.number().optional(),
+  fiber: z.number().nullable(),
 });
 
 // Meal analysis schema
@@ -27,7 +27,7 @@ export const MealAnalysisSchema = z.object({
   macros: MacrosSchema,
   foodItems: z.array(FoodItemSchema),
   confidence: z.enum(["low", "medium", "high"]),
-  notes: z.string().optional(),
+  notes: z.string().nullable(),
 });
 
 // TypeScript types (inferred from Zod)

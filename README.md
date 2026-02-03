@@ -1,6 +1,6 @@
 # AI Calorie & Nutrition Analyzer
 
-A mobile-first web app that uses GPT-4 Vision to instantly analyze meal photos and provide calorie and macronutrient estimates.
+A mobile-first web app that uses GPT-5.2 vision to instantly analyze meal photos and provide calorie and macronutrient estimates.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -8,7 +8,7 @@ A mobile-first web app that uses GPT-4 Vision to instantly analyze meal photos a
 ## Features
 
 - 📸 **Camera Capture** - Native camera integration with live preview
-- 🤖 **AI Analysis** - GPT-4 Vision for accurate nutrition estimation
+- 🤖 **AI Analysis** - GPT-5.2 vision for accurate nutrition estimation
 - 📊 **Macro Breakdown** - Protein, carbs, fat, and fiber tracking
 - 🎯 **Confidence Indicator** - Transparency about estimate accuracy
 - 📱 **PWA Support** - Installable on mobile devices
@@ -21,7 +21,7 @@ A mobile-first web app that uses GPT-4 Vision to instantly analyze meal photos a
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS
 - **Components:** shadcn/ui
-- **AI:** OpenAI GPT-4 Vision API
+- **AI:** OpenAI GPT-5.2 Vision API
 - **Validation:** Zod
 - **Deployment:** Vercel
 
@@ -30,7 +30,7 @@ A mobile-first web app that uses GPT-4 Vision to instantly analyze meal photos a
 ### Prerequisites
 
 - Node.js 18+ and npm
-- OpenAI API key with GPT-4 Vision access
+- OpenAI API key with GPT-5.2 vision access
 
 ### Installation
 
@@ -86,7 +86,7 @@ If camera access isn't available, use the upload button to select photos from yo
 ```
 src/
 ├── app/
-│   ├── api/analyze/route.ts    # GPT-4 Vision endpoint
+│   ├── api/analyze/route.ts    # GPT-5.2 Vision endpoint
 │   ├── page.tsx                # Home/camera page
 │   ├── results/page.tsx        # Results display
 │   ├── layout.tsx              # Root layout with PWA meta
@@ -160,7 +160,8 @@ Analyzes a meal image and returns nutritional estimates.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OPENAI_API_KEY` | Yes | OpenAI API key with GPT-4 Vision access |
+| `OPENAI_API_KEY` | Yes | OpenAI API key with GPT-5.2 vision access |
+| `OPENAI_MODEL` | No | Model override (defaults to `gpt-5.2`) |
 | `NEXT_PUBLIC_APP_URL` | No | Public app URL for SEO (production) |
 
 ### Vercel Configuration
@@ -266,7 +267,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - Built with [Next.js](https://nextjs.org/)
 - UI components from [shadcn/ui](https://ui.shadcn.com/)
-- AI powered by [OpenAI GPT-4 Vision](https://openai.com/)
+- AI powered by OpenAI GPT-5.2 vision
 - Icons from [Lucide](https://lucide.dev/)
 
 ## Support
