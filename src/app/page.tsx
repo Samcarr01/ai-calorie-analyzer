@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lock, Sparkles, ShieldCheck, ScanLine } from "lucide-react";
+import { Lock, ShieldCheck, ScanLine, Sparkles, ArrowRight } from "lucide-react";
 import { hasAccess, setAccess, validateAccessCode } from "@/lib/access";
 
 export default function LandingPage() {
@@ -42,55 +42,111 @@ export default function LandingPage() {
 
   return (
     <main className="page-shell">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
-        <header className="text-center space-y-4 animate-fade-up">
-          <div className="flex justify-center">
-            <span className="glass-pill">Liquid Glass • iOS 26</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-glow">
-            Calorie AI
-          </h1>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            A private, Apple-like nutrition scanner. Capture a meal and get a
-            clean breakdown in seconds.
-          </p>
-        </header>
-
-        <section className="grid gap-4 sm:grid-cols-3 animate-fade-up delay-1">
-          {[
-            {
-              title: "Private by default",
-              description: "No accounts, no storage. Your photo stays yours.",
-              icon: ShieldCheck,
-            },
-            {
-              title: "Liquid glass UI",
-              description: "Depth, blur, and glow inspired by iOS 26.",
-              icon: Sparkles,
-            },
-            {
-              title: "Instant analysis",
-              description: "Calories, macros, and confidence in moments.",
-              icon: ScanLine,
-            },
-          ].map((feature) => (
-            <Card key={feature.title} className="p-5">
-              <feature.icon className="h-5 w-5 text-cyan-200" />
-              <p className="text-sm font-semibold mt-4">{feature.title}</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                {feature.description}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12">
+        <nav className="flex items-center justify-between animate-fade-up">
+          <div className="flex items-center gap-3">
+            <div className="glass-panel px-3 py-2 text-sm font-semibold">
+              CA
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Calorie AI</p>
+              <p className="text-xs text-muted-foreground">
+                Private meal scanner
               </p>
-            </Card>
-          ))}
+            </div>
+          </div>
+          <Button variant="outline" onClick={handleCta}>
+            {isAuthorized ? "Open App" : "Enter Code"}
+          </Button>
+        </nav>
+
+        <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center animate-fade-up delay-1">
+          <div className="space-y-6">
+            <span className="glass-pill">PRIVATE BETA</span>
+            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-glow">
+              Clean nutrition insights from a single photo.
+            </h1>
+            <p className="text-base md:text-lg text-muted-foreground">
+              Snap, refine, and move on. Calorie AI keeps the flow simple while
+              giving you a confidence‑scored breakdown.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg" onClick={handleCta} className="shine">
+                Unlock Access
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" onClick={handleCta}>
+                {isAuthorized ? "Go to Scanner" : "Use Access Code"}
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+              <span className="glass-panel px-3 py-2">No account required</span>
+              <span className="glass-panel px-3 py-2">Private by default</span>
+              <span className="glass-panel px-3 py-2">Mobile first</span>
+            </div>
+          </div>
+
+          <Card className="p-6 space-y-6 hover-lift">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Live preview</p>
+                <h2 className="text-xl font-semibold">Scanner preview</h2>
+              </div>
+              <span className="glass-pill text-[10px]">READY</span>
+            </div>
+            <div className="glass-panel p-4 space-y-3 hover-lift">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Calories</span>
+                <span className="text-sm font-semibold text-white/90">
+                  520 kcal
+                </span>
+              </div>
+              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full w-2/3 bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500" />
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Protein 32g</span>
+                <span>Carbs 48g</span>
+                <span>Fat 18g</span>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                {
+                  title: "Private by default",
+                  description: "No accounts or storage needed.",
+                  icon: ShieldCheck,
+                },
+                {
+                  title: "Instant analysis",
+                  description: "Calories and macros in seconds.",
+                  icon: ScanLine,
+                },
+                {
+                  title: "Refine results",
+                  description: "Add context for better accuracy.",
+                  icon: Sparkles,
+                },
+              ].map((feature) => (
+                <div key={feature.title} className="glass-panel p-4 hover-lift">
+                  <feature.icon className="h-4 w-4 text-cyan-200" />
+                  <p className="text-sm font-semibold mt-3">{feature.title}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Card>
         </section>
 
         <section className="glass-card p-6 md:p-8 flex flex-col gap-6 animate-fade-up delay-2">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Private access</p>
+              <p className="text-sm text-muted-foreground">Access</p>
               <h2 className="text-2xl font-semibold">Enter with a code</h2>
             </div>
-            <div className="glass-pill text-[10px] tracking-[0.3em]">
+            <div className="glass-pill text-[10px]">
               {isAuthorized ? "GRANTED" : "LOCKED"}
             </div>
           </div>
