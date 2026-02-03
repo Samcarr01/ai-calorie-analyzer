@@ -164,6 +164,8 @@ Analyzes a meal image and returns nutritional estimates.
 | `OPENAI_MODEL` | No | Model override (defaults to `gpt-5.2`) |
 | `NEXT_PUBLIC_APP_URL` | No | Public app URL for SEO (production) |
 
+When deploying on Vercel, set these in Project Settings → Environment Variables.
+
 ### Vercel Configuration
 
 The `vercel.json` file includes:
