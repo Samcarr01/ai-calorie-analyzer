@@ -7,14 +7,18 @@ import { FoodItemList } from "@/components/FoodItemList";
 import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, RotateCcw } from "lucide-react";
-import type { MealAnalysis } from "@/types/nutrition";
+import { ArrowLeft, RotateCcw, RefreshCw, Loader2 } from "lucide-react";
+import type { MealAnalysis, AnalyzeResponse } from "@/types/nutrition";
 
 export default function ResultsPage() {
   const router = useRouter();
   const [data, setData] = useState<MealAnalysis | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showRefine, setShowRefine] = useState(false);
+  const [refineContext, setRefineContext] = useState("");
+  const [isRefining, setIsRefining] = useState(false);
+  const [refineError, setRefineError] = useState<string | null>(null);
 
   useEffect(() => {
     // Retrieve from sessionStorage
@@ -43,6 +47,40 @@ export default function ResultsPage() {
     sessionStorage.removeItem("analysisResult");
     sessionStorage.removeItem("capturedImage");
     router.push("/");
+  };
+
+  const handleRefine = async () => {
+    if (!imageData || !refineContext.trim()) return;
+
+    setIsRefining(true);
+    setRefineError(null);
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: imageData,
+          mimeType: "image/jpeg",
+          context: refineContext.trim(),
+        }),
+      });
+
+      const result: AnalyzeResponse = await response.json();
+
+      if (result.success && result.data) {
+        setData(result.data);
+        sessionStorage.setItem("analysisResult", JSON.stringify(result.data));
+        setShowRefine(false);
+        setRefineContext("");
+      } else {
+        setRefineError(result.error || "Failed to refine analysis");
+      }
+    } catch (err) {
+      setRefineError("Network error. Please try again.");
+    } finally {
+      setIsRefining(false);
+    }
   };
 
   if (isLoading || !data) {
@@ -94,6 +132,62 @@ export default function ResultsPage() {
 
         {/* Confidence */}
         <ConfidenceIndicator level={data.confidence} />
+
+        {/* Refine analysis section */}
+        {!showRefine ? (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => setShowRefine(true)}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Not accurate? Add details to refine
+          </Button>
+        ) : (
+          <Card className="p-4 space-y-3">
+            <p className="text-sm font-medium">What is this food/drink?</p>
+            <input
+              type="text"
+              placeholder="e.g., 'milk tea with boba and brown sugar'"
+              value={refineContext}
+              onChange={(e) => setRefineContext(e.target.value)}
+              disabled={isRefining}
+              className="w-full px-3 py-2 text-sm border rounded-md bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              maxLength={500}
+              autoFocus
+            />
+            {refineError && (
+              <p className="text-sm text-destructive">{refineError}</p>
+            )}
+            <div className="flex gap-2">
+              <Button
+                onClick={handleRefine}
+                disabled={isRefining || !refineContext.trim()}
+                className="flex-1"
+              >
+                {isRefining ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  "Re-analyze"
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowRefine(false);
+                  setRefineContext("");
+                  setRefineError(null);
+                }}
+                disabled={isRefining}
+              >
+                Cancel
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* Food items */}
         <FoodItemList items={data.foodItems} />
