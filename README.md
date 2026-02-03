@@ -277,6 +277,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 For issues or questions:
 - Open an issue on GitHub
 - Check [DEPLOYMENT.md](DEPLOYMENT.md) for troubleshooting
+- If Vercel isn't auto-deploying, confirm Git integration is connected to this repo
 
 ## Roadmap
 
