@@ -16,15 +16,15 @@ export function FoodItemList({ items }: FoodItemListProps) {
     <Card className="p-5">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">Detected Foods</h3>
-        <span className="glass-pill text-[10px] tracking-[0.25em]">
+        <span className="glass-pill text-[10px]">
           {items.length} ITEM{items.length > 1 ? "S" : ""}
         </span>
       </div>
-      <ul className="space-y-3 mt-4">
+      <ul className="mt-4">
         {items.map((item, index) => (
           <li
             key={index}
-            className="glass-panel flex items-center justify-between px-4 py-3"
+            className="flex items-center justify-between py-3 border-b border-white/10 last:border-0"
           >
             <div className="flex-1">
               <p className="font-medium">{item.name}</p>

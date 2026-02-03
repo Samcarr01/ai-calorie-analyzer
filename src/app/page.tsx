@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lock, Camera, Zap, Shield, Instagram, Loader2 } from "lucide-react";
+import {
+  Lock,
+  Camera,
+  Zap,
+  Shield,
+  Instagram,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 import { checkAccess, validateAndSetAccess } from "@/lib/access";
 
 export default function LandingPage() {
@@ -53,71 +61,90 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="page-shell flex flex-col items-center justify-center">
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8 text-center animate-fade-up">
-        {/* Logo */}
-        <div className="glass-panel p-4">
-          <Camera className="h-8 w-8 text-cyan-300" />
-        </div>
-
-        {/* Hero */}
-        <div className="space-y-4">
-          <span className="glass-pill text-[10px]">PRIVATE BETA</span>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-glow">
+    <main className="page-shell">
+      <div className="w-full max-w-5xl mx-auto flex flex-col gap-10 text-center animate-fade-up">
+        <div className="flex flex-col items-center gap-4">
+          <div className="glass-panel p-4">
+            <Camera className="h-8 w-8 text-cyan-300" />
+          </div>
+          <span className="glass-pill text-[10px]">PRIVATE ACCESS</span>
+          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-glow">
             Calorie AI
           </h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Snap a photo of your food. Get instant calorie and macro estimates powered by AI.
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Snap a photo of your meal and get a clean calorie + macro estimate in seconds.
+            Built for quick, no‑friction check‑ins.
           </p>
-        </div>
-
-        {/* Main CTA */}
-        <Button
-          size="lg"
-          onClick={handleCta}
-          disabled={isLoading}
-          className="h-14 px-8 text-base shine"
-        >
-          {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : isAuthorized ? (
-            "Open Scanner"
-          ) : (
-            "Enter Access Code"
-          )}
-        </Button>
-
-        {/* Instagram CTA */}
-        {!isAuthorized && !isLoading && (
-          <a
-            href="https://instagram.com/samcarr"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors"
+          <Button
+            size="lg"
+            onClick={handleCta}
+            disabled={isLoading}
+            className="h-14 px-10 text-base shine"
           >
-            <Instagram className="h-4 w-4" />
-            <span>DM @samcarr on Instagram for access</span>
-          </a>
-        )}
-
-        {/* Features */}
-        <div className="grid grid-cols-3 gap-3 w-full mt-4">
-          <div className="glass-panel p-4 text-center">
-            <Zap className="h-5 w-5 text-amber-300 mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Instant</p>
-          </div>
-          <div className="glass-panel p-4 text-center">
-            <Shield className="h-5 w-5 text-emerald-300 mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Private</p>
-          </div>
-          <div className="glass-panel p-4 text-center">
-            <Camera className="h-5 w-5 text-cyan-300 mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Simple</p>
-          </div>
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : isAuthorized ? (
+              "Open Scanner"
+            ) : (
+              "Enter Access Code"
+            )}
+          </Button>
+          {!isAuthorized && !isLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Instagram className="h-4 w-4" />
+              <span>DM @samcarr142 on Instagram for access</span>
+            </div>
+          )}
         </div>
 
-        {/* Footer */}
-        <p className="text-xs text-muted-foreground mt-4">
+        <section className="grid gap-4 md:grid-cols-3">
+          <Card className="p-5 text-left hover-lift">
+            <Zap className="h-5 w-5 text-amber-300" />
+            <p className="text-sm font-semibold mt-3">Fast analysis</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Get calories, macros, and confidence in a few seconds.
+            </p>
+          </Card>
+          <Card className="p-5 text-left hover-lift">
+            <Shield className="h-5 w-5 text-emerald-300" />
+            <p className="text-sm font-semibold mt-3">Private by default</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              No accounts or storage. Your images stay on your device.
+            </p>
+          </Card>
+          <Card className="p-5 text-left hover-lift">
+            <Sparkles className="h-5 w-5 text-cyan-300" />
+            <p className="text-sm font-semibold mt-3">Refine anytime</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Add a quick note to improve accuracy on complex meals.
+            </p>
+          </Card>
+        </section>
+
+        <section className="glass-card p-6 md:p-8 text-left space-y-4">
+          <h2 className="text-xl font-semibold">How it works</h2>
+          <div className="grid gap-3 md:grid-cols-3 text-sm text-muted-foreground">
+            <div className="glass-panel p-4">
+              1. Capture a clear photo with the whole plate visible.
+            </div>
+            <div className="glass-panel p-4">
+              2. We estimate calories and macros with confidence scoring.
+            </div>
+            <div className="glass-panel p-4">
+              3. Add a short note if anything is hidden or mixed.
+            </div>
+          </div>
+        </section>
+
+        <section className="glass-panel p-5 text-left">
+          <p className="text-sm font-semibold">Good to know</p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Best results come from bright lighting and a steady shot. Portions are estimates,
+            so use the refine step when needed.
+          </p>
+        </section>
+
+        <p className="text-xs text-muted-foreground">
           No account needed · Images never stored
         </p>
       </div>
@@ -132,7 +159,7 @@ export default function LandingPage() {
               </div>
               <h2 className="text-lg font-semibold">Enter access code</h2>
               <p className="text-xs text-muted-foreground">
-                DM <span className="text-cyan-300">@samcarr</span> on Instagram to get the code
+                DM <span className="text-cyan-300">@samcarr142</span> on Instagram to get the code
               </p>
             </div>
 
@@ -179,13 +206,13 @@ export default function LandingPage() {
             </form>
 
             <a
-              href="https://instagram.com/samcarr"
+              href="https://instagram.com/samcarr142"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors"
             >
               <Instagram className="h-3 w-3" />
-              <span>Get code from @samcarr</span>
+              <span>Get code from @samcarr142</span>
             </a>
           </Card>
         </div>

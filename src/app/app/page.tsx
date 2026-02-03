@@ -90,9 +90,17 @@ export default function AppPage() {
 
   return (
     <main className="page-shell">
-      <div className="mx-auto w-full max-w-2xl flex flex-col gap-6">
-        {/* Header */}
-        <header className="flex items-center gap-4 animate-fade-up">
+      <div className="mx-auto w-full max-w-4xl flex flex-col gap-6">
+        <header className="flex items-center justify-between gap-4 animate-fade-up">
+          <div>
+            <p className="text-xs text-muted-foreground">Scanner</p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-glow">
+              Scan your meal
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Keep the plate centered and steady.
+            </p>
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -101,12 +109,6 @@ export default function AppPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-glow">Scan your meal</h1>
-            <p className="text-sm text-muted-foreground">
-              Hold steady for best results
-            </p>
-          </div>
         </header>
 
         {/* Error */}
@@ -127,9 +129,9 @@ export default function AppPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-xs text-center text-muted-foreground">
-          Add a note for complex dishes to improve accuracy
-        </p>
+        <div className="glass-panel px-4 py-3 text-xs text-muted-foreground text-center">
+          Add a note for complex dishes to improve accuracy.
+        </div>
       </div>
     </main>
   );

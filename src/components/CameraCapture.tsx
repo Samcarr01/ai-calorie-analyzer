@@ -289,11 +289,11 @@ export function CameraCapture({
   // Render camera UI with permission granted
   return (
     <Card className="w-full max-w-4xl mx-auto overflow-hidden">
-      <div className="p-5 space-y-4">
+      <div className="p-5 space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Live preview</p>
-            <p className="text-sm font-semibold">Camera feed</p>
+            <p className="text-xs text-muted-foreground">Live view</p>
+            <p className="text-sm font-semibold">Frame your meal</p>
           </div>
           {hasFrontCamera && (
             <Button
@@ -315,47 +315,30 @@ export function CameraCapture({
             muted
             className="camera-feed"
           />
-          <div className="camera-grid" />
-          <div className="camera-corners" />
-          <div className="camera-focus" />
           <div className="camera-vignette" />
         </div>
 
-        <div className="grid gap-3 md:grid-cols-[1fr_auto] items-center">
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            Optional note (helps with mixed dishes or drinks)
+          </p>
           <input
             type="text"
-            placeholder="Add a short note for complex meals or drinks"
+            placeholder="e.g., oat milk latte with vanilla"
             value={context}
             onChange={(e) => setContext(e.target.value)}
             disabled={disabled || isCapturing}
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
+            className="glass-input"
             maxLength={500}
           />
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={disabled || isCapturing}
-          />
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || isCapturing}
-            className="h-12 w-full md:w-auto"
-          >
-            <Upload className="h-5 w-5" />
-          </Button>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="grid grid-cols-[1fr_auto] gap-3">
           <Button
             size="lg"
             onClick={capturePhoto}
             disabled={disabled || isCapturing}
-            className="flex-1 h-14 shine"
+            className="h-14 shine"
           >
             {isCapturing ? (
               <>
@@ -369,10 +352,28 @@ export function CameraCapture({
               </>
             )}
           </Button>
-          <div className="glass-panel px-4 py-3 text-xs text-muted-foreground sm:w-56">
-            Keep the whole plate visible for sharper results.
-          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+            disabled={disabled || isCapturing}
+          />
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled || isCapturing}
+            className="h-14 w-14"
+          >
+            <Upload className="h-5 w-5" />
+          </Button>
         </div>
+
+        <p className="text-xs text-muted-foreground">
+          Tip: keep the full plate in frame for sharper results.
+        </p>
       </div>
     </Card>
   );
