@@ -14,7 +14,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
-  const handleCapture = async (imageData: string, mimeType: string) => {
+  const handleCapture = async (imageData: string, mimeType: string, context?: string) => {
     setError(null);
     setCapturedImage(imageData);
     setIsAnalyzing(true);
@@ -23,7 +23,7 @@ export default function HomePage() {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageData, mimeType }),
+        body: JSON.stringify({ image: imageData, mimeType, context }),
       });
 
       const result: AnalyzeResponse = await response.json();

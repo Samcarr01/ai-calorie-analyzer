@@ -8,7 +8,7 @@ import { Camera, Upload, SwitchCamera, Loader2 } from "lucide-react";
 import { compressImage } from "@/lib/image-utils";
 
 interface CameraCaptureProps {
-  onCapture: (imageData: string, mimeType: string) => void;
+  onCapture: (imageData: string, mimeType: string, context?: string) => void;
   onError: (error: string) => void;
   disabled?: boolean;
 }
@@ -26,6 +26,7 @@ export function CameraCapture({
   );
   const [isCapturing, setIsCapturing] = useState(false);
   const [hasFrontCamera, setHasFrontCamera] = useState(false);
+  const [context, setContext] = useState("");
 
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -147,14 +148,14 @@ export function CameraCapture({
         quality: 0.8,
       });
 
-      // Call onCapture with compressed image
-      onCapture(compressed.base64, compressed.mimeType);
+      // Call onCapture with compressed image and optional context
+      onCapture(compressed.base64, compressed.mimeType, context || undefined);
     } catch (error) {
       console.error("Capture error:", error);
       onError("Failed to capture photo. Please try again.");
       setIsCapturing(false);
     }
-  }, [onCapture, onError, isCapturing, disabled]);
+  }, [onCapture, onError, isCapturing, disabled, context]);
 
   // Handle file upload
   const handleFileUpload = useCallback(
@@ -178,8 +179,8 @@ export function CameraCapture({
           quality: 0.8,
         });
 
-        // Call onCapture with compressed image
-        onCapture(compressed.base64, compressed.mimeType);
+        // Call onCapture with compressed image and optional context
+        onCapture(compressed.base64, compressed.mimeType, context || undefined);
       } catch (error) {
         console.error("Upload error:", error);
         onError("Failed to process image. Please try again.");
@@ -191,7 +192,7 @@ export function CameraCapture({
         fileInputRef.current.value = "";
       }
     },
-    [onCapture, onError, isCapturing, disabled]
+    [onCapture, onError, isCapturing, disabled, context]
   );
 
   // Toggle camera facing mode
@@ -289,6 +290,17 @@ export function CameraCapture({
 
       {/* Controls */}
       <div className="p-4 space-y-3">
+        {/* Optional context input */}
+        <input
+          type="text"
+          placeholder="Optional: describe your food (e.g., 'oat milk latte with vanilla')"
+          value={context}
+          onChange={(e) => setContext(e.target.value)}
+          disabled={disabled || isCapturing}
+          className="w-full px-3 py-2 text-sm border rounded-md bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          maxLength={500}
+        />
+
         <div className="flex gap-3">
           {/* Capture button */}
           <Button
@@ -331,7 +343,7 @@ export function CameraCapture({
         </div>
 
         <p className="text-xs text-center text-muted-foreground">
-          Point your camera at your meal and capture a clear photo
+          Add details for complex items to improve accuracy
         </p>
       </div>
     </Card>

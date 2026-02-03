@@ -4,6 +4,7 @@ import { z } from "zod";
 export const AnalyzeRequestSchema = z.object({
   image: z.string().min(1, "Image data required"),
   mimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+  context: z.string().max(500).optional(),
 });
 
 // Food item schema

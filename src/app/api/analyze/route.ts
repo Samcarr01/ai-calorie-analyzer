@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/lib/openai";
-import { NUTRITION_SYSTEM_PROMPT, NUTRITION_USER_PROMPT } from "@/lib/prompts";
+import { NUTRITION_SYSTEM_PROMPT, buildUserPrompt } from "@/lib/prompts";
 import {
   AnalyzeRequestSchema,
   MealAnalysisSchema,
@@ -118,7 +118,8 @@ function parseAIResponse(content: string): MealAnalysis | null {
 async function callOpenAIWithTimeout(
   imageData: string,
   mimeType: string,
-  timeoutMs: number
+  timeoutMs: number,
+  context?: string
 ): Promise<string> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -132,7 +133,7 @@ async function callOpenAIWithTimeout(
           {
             role: "user",
             content: [
-              { type: "input_text", text: NUTRITION_USER_PROMPT },
+              { type: "input_text", text: buildUserPrompt(context) },
               {
                 type: "input_image",
                 image_url: `data:${mimeType};base64,${imageData}`,
@@ -194,7 +195,7 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
-    const { image, mimeType } = validatedRequest;
+    const { image, mimeType, context } = validatedRequest;
 
     // Validate image size
     const sizeValidation = validateImageSize(image);
@@ -210,7 +211,7 @@ export async function POST(request: NextRequest) {
     // Call OpenAI API with timeout
     let aiResponse: string;
     try {
-      aiResponse = await callOpenAIWithTimeout(image, mimeType, API_TIMEOUT);
+      aiResponse = await callOpenAIWithTimeout(image, mimeType, API_TIMEOUT, context);
     } catch (error: any) {
       if (error.message === "TIMEOUT") {
         const response: AnalyzeResponse = {

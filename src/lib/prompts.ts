@@ -56,9 +56,34 @@ JSON SCHEMA:
   "notes": string | null (mention any assumptions, hidden ingredients like oil/butter, or items partially visible)
 }
 
+COMPLEX ITEMS HANDLING:
+For mixed drinks (smoothies, cocktails, lattes):
+- Break down visible/likely components (milk, espresso, syrup, fruit)
+- Estimate ratios based on color, texture, glass size
+- Note assumptions in the notes field
+
+For complex dishes (curries, stews, casseroles, restaurant meals):
+- Identify the base (rice, pasta, bread) separately from toppings/sauce
+- Estimate cooking fats (restaurant food typically +100-200 cal from oils/butter)
+- List individual components even if combined
+
+For layered items (parfaits, burritos, sandwiches):
+- Estimate each visible layer
+- Account for hidden ingredients (mayo, cheese, dressings)
+
 CONFIDENCE GUIDELINES:
 - HIGH: Clear, well-lit image, recognizable items, visible portions, simple/unprocessed foods
 - MEDIUM: Mixed dishes, unusual angles, some items obscured, restaurant food (hidden oils/butter)
-- LOW: Poor lighting, heavily processed foods, unclear portions, complex multi-ingredient dishes, low resolution`;
+- LOW: Poor lighting, heavily processed foods, unclear portions, complex multi-ingredient dishes, low resolution
+
+USER CONTEXT:
+If the user provides additional context about the food/drink, use it to improve accuracy. Trust user descriptions of ingredients they know are present.`;
 
 export const NUTRITION_USER_PROMPT = `Analyze this image and provide detailed nutritional estimates for ALL visible food AND beverages/drinks. Be specific with item names and portions. Return only the JSON response.`;
+
+export function buildUserPrompt(context?: string): string {
+  if (context && context.trim()) {
+    return `Analyze this image and provide detailed nutritional estimates. The user has provided this context about the food/drink: "${context.trim()}". Use this information to improve accuracy. Be specific with item names and portions. Return only the JSON response.`;
+  }
+  return NUTRITION_USER_PROMPT;
+}
