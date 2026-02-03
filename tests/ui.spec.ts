@@ -1,124 +1,158 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Home Page", () => {
-  test("should display main heading and description", async ({ page }) => {
+const ACCESS_CODE = "imfat";
+
+test.describe("Landing Page", () => {
+  test("should display app name and CTA", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.locator("h1")).toContainText("AI Calorie Analyzer");
-    await expect(page.locator("text=Take a photo of your meal")).toBeVisible();
+    await expect(page.locator("h1")).toContainText("Calorie AI");
+    await expect(page.getByRole("button", { name: /enter access code|open scanner/i })).toBeVisible();
   });
 
-  test("should have camera controls or upload button", async ({ page }) => {
+  test("should show access modal when clicking CTA", async ({ page }) => {
     await page.goto("/");
 
-    // Wait for camera permission prompt to resolve
-    await page.waitForTimeout(2000);
+    await page.getByRole("button", { name: /enter access code/i }).click();
 
-    // Should show either camera UI or upload-only UI
-    const cameraButton = page.getByRole("button", { name: /capture/i });
-    const uploadButton = page.getByRole("button", { name: /upload/i });
-
-    // At least one option should be available
-    const hasCapture = await cameraButton.isVisible().catch(() => false);
-    const hasUpload = await uploadButton.isVisible().catch(() => false);
-
-    expect(hasCapture || hasUpload).toBe(true);
+    await expect(page.getByRole("heading", { name: /enter access code/i })).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
   });
 
-  test("should show footer disclaimer", async ({ page }) => {
+  test("should reject invalid code", async ({ page }) => {
     await page.goto("/");
 
-    await expect(
-      page.locator("text=Estimates are based on AI analysis")
-    ).toBeVisible();
+    await page.getByRole("button", { name: /enter access code/i }).click();
+    await page.locator('input[type="password"]').fill("wrong");
+    await page.getByRole("button", { name: /unlock/i }).click();
+
+    await expect(page.locator("text=Incorrect")).toBeVisible();
+  });
+
+  test("should accept valid code and redirect", async ({ page }) => {
+    await page.goto("/");
+
+    await page.getByRole("button", { name: /enter access code/i }).click();
+    await page.locator('input[type="password"]').fill(ACCESS_CODE);
+    await page.getByRole("button", { name: /unlock/i }).click();
+
+    await expect(page).toHaveURL("/app");
+  });
+
+  test("should show Open Scanner when already authorized", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("calorieai_access", "granted");
+    });
+    await page.reload();
+
+    await expect(page.getByRole("button", { name: /open scanner/i })).toBeVisible();
+  });
+});
+
+test.describe("App Page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("calorieai_access", "granted");
+    });
+  });
+
+  test("should display scanner UI", async ({ page }) => {
+    await page.goto("/app");
+
+    await expect(page.locator("text=Scan your meal")).toBeVisible();
+  });
+
+  test("should have back button", async ({ page }) => {
+    await page.goto("/app");
+
+    const backButton = page.getByRole("button").first();
+    await expect(backButton).toBeVisible();
+  });
+
+  test("should redirect if not authorized", async ({ page }) => {
+    await page.evaluate(() => {
+      localStorage.removeItem("calorieai_access");
+    });
+
+    await page.goto("/app");
+    await expect(page).toHaveURL("/");
   });
 });
 
 test.describe("Results Page", () => {
-  test("should redirect to home if no data", async ({ page }) => {
-    await page.goto("/results");
-
-    // Should redirect to home page
-    await expect(page).toHaveURL("/");
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("calorieai_access", "granted");
+    });
   });
 
-  test("should display results when data is in sessionStorage", async ({
-    page,
-  }) => {
+  test("should redirect if no data", async ({ page }) => {
+    await page.goto("/results");
+    await expect(page).toHaveURL("/app");
+  });
+
+  test("should display results", async ({ page }) => {
     const mockData = {
       totalCalories: 450,
-      macros: {
-        protein: 25,
-        carbohydrates: 45,
-        fat: 18,
-        fiber: 5,
-        sugar: 8,
-      },
+      macros: { protein: 25, carbohydrates: 45, fat: 18, fiber: 5, sugar: 8 },
       foodItems: [
-        { name: "Grilled Chicken", estimatedPortion: "150g", calories: 250 },
+        { name: "Chicken", estimatedPortion: "150g", calories: 250 },
         { name: "Rice", estimatedPortion: "1 cup", calories: 200 },
       ],
       confidence: "high",
-      notes: "Well-balanced meal",
-    };
-
-    await page.goto("/");
-
-    // Set sessionStorage before navigating to results
-    await page.evaluate((data) => {
-      sessionStorage.setItem("analysisResult", JSON.stringify(data));
-      sessionStorage.setItem("capturedImage", "dGVzdA=="); // base64 "test"
-    }, mockData);
-
-    await page.goto("/results");
-
-    // Check that results are displayed
-    await expect(page.locator("text=Nutrition Results")).toBeVisible();
-    await expect(page.locator("text=calories")).toBeVisible();
-    await expect(page.locator("text=Grilled Chicken")).toBeVisible();
-    await expect(page.locator("text=Rice")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /analyze another/i })
-    ).toBeVisible();
-  });
-
-  test("should navigate back when clicking Analyze Another", async ({
-    page,
-  }) => {
-    const mockData = {
-      totalCalories: 300,
-      macros: { protein: 20, carbohydrates: 30, fat: 10, fiber: 3, sugar: 5 },
-      foodItems: [{ name: "Test Food", estimatedPortion: "1 piece", calories: 300 }],
-      confidence: "medium",
       notes: null,
     };
 
-    await page.goto("/");
+    await page.goto("/app");
     await page.evaluate((data) => {
       sessionStorage.setItem("analysisResult", JSON.stringify(data));
+      sessionStorage.setItem("capturedImage", "dGVzdA==");
     }, mockData);
 
     await page.goto("/results");
-    await page.getByRole("button", { name: /analyze another/i }).click();
 
-    await expect(page).toHaveURL("/");
+    await expect(page.locator("text=Chicken")).toBeVisible();
+    await expect(page.locator("text=Rice")).toBeVisible();
+  });
+
+  test("should have refine button", async ({ page }) => {
+    const mockData = {
+      totalCalories: 100,
+      macros: { protein: 5, carbohydrates: 10, fat: 3, fiber: 1, sugar: 2 },
+      foodItems: [{ name: "Test", estimatedPortion: "1pc", calories: 100 }],
+      confidence: "low",
+      notes: null,
+    };
+
+    await page.goto("/app");
+    await page.evaluate((data) => {
+      sessionStorage.setItem("analysisResult", JSON.stringify(data));
+      sessionStorage.setItem("capturedImage", "dGVzdA==");
+    }, mockData);
+
+    await page.goto("/results");
+
+    await expect(page.getByRole("button", { name: /not accurate/i })).toBeVisible();
   });
 });
 
-test.describe("Mobile Responsiveness", () => {
+test.describe("Mobile", () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
-  test("should be usable on mobile viewport", async ({ page }) => {
+  test("landing works on mobile", async ({ page }) => {
     await page.goto("/");
+    await expect(page.locator("h1")).toContainText("Calorie AI");
+  });
 
-    // Heading should be visible
-    await expect(page.locator("h1")).toBeVisible();
-
-    // Buttons should be large enough for touch
-    const uploadButton = page.getByRole("button", { name: /upload/i });
-    if (await uploadButton.isVisible().catch(() => false)) {
-      const box = await uploadButton.boundingBox();
-      expect(box?.height).toBeGreaterThanOrEqual(44); // Minimum touch target
-    }
+  test("app works on mobile", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("calorieai_access", "granted");
+    });
+    await page.goto("/app");
+    await expect(page.locator("text=Scan your meal")).toBeVisible();
   });
 });

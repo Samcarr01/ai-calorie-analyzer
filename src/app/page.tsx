@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lock, ShieldCheck, ScanLine, Sparkles, ArrowRight } from "lucide-react";
+import { Lock, Camera, Zap, Shield } from "lucide-react";
 import { hasAccess, setAccess, validateAccessCode } from "@/lib/access";
 
 export default function LandingPage() {
@@ -15,11 +15,13 @@ export default function LandingPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    setIsAuthorized(hasAccess());
+    if (hasAccess()) {
+      setIsAuthorized(true);
+    }
   }, []);
 
   const handleCta = () => {
-    if (hasAccess()) {
+    if (isAuthorized) {
       router.push("/app");
       return;
     }
@@ -37,170 +39,94 @@ export default function LandingPage() {
       router.push("/app");
       return;
     }
-    setCodeError("Incorrect access code. Try again.");
+    setCodeError("Incorrect code");
   };
 
   return (
-    <main className="page-shell">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12">
-        <nav className="flex items-center justify-between animate-fade-up">
-          <div className="flex items-center gap-3">
-            <div className="glass-panel px-3 py-2 text-sm font-semibold">
-              CA
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Calorie AI</p>
-              <p className="text-xs text-muted-foreground">
-                Private meal scanner
-              </p>
-            </div>
-          </div>
-          <Button variant="outline" onClick={handleCta}>
-            {isAuthorized ? "Open App" : "Enter Code"}
-          </Button>
-        </nav>
+    <main className="page-shell flex flex-col items-center justify-center">
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8 text-center animate-fade-up">
+        {/* Logo */}
+        <div className="glass-panel p-4">
+          <Camera className="h-8 w-8 text-cyan-300" />
+        </div>
 
-        <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center animate-fade-up delay-1">
-          <div className="space-y-6">
-            <span className="glass-pill">PRIVATE BETA</span>
-            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-glow">
-              Clean nutrition insights from a single photo.
-            </h1>
-            <p className="text-base md:text-lg text-muted-foreground">
-              Snap, refine, and move on. Calorie AI keeps the flow simple while
-              giving you a confidence‑scored breakdown.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" onClick={handleCta} className="shine">
-                Unlock Access
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" onClick={handleCta}>
-                {isAuthorized ? "Go to Scanner" : "Use Access Code"}
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-              <span className="glass-panel px-3 py-2">No account required</span>
-              <span className="glass-panel px-3 py-2">Private by default</span>
-              <span className="glass-panel px-3 py-2">Mobile first</span>
-            </div>
-          </div>
-
-          <Card className="p-6 space-y-6 hover-lift">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Live preview</p>
-                <h2 className="text-xl font-semibold">Scanner preview</h2>
-              </div>
-              <span className="glass-pill text-[10px]">READY</span>
-            </div>
-            <div className="glass-panel p-4 space-y-3 hover-lift">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Calories</span>
-                <span className="text-sm font-semibold text-white/90">
-                  520 kcal
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full w-2/3 bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500" />
-              </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Protein 32g</span>
-                <span>Carbs 48g</span>
-                <span>Fat 18g</span>
-              </div>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                {
-                  title: "Private by default",
-                  description: "No accounts or storage needed.",
-                  icon: ShieldCheck,
-                },
-                {
-                  title: "Instant analysis",
-                  description: "Calories and macros in seconds.",
-                  icon: ScanLine,
-                },
-                {
-                  title: "Refine results",
-                  description: "Add context for better accuracy.",
-                  icon: Sparkles,
-                },
-              ].map((feature) => (
-                <div key={feature.title} className="glass-panel p-4 hover-lift">
-                  <feature.icon className="h-4 w-4 text-cyan-200" />
-                  <p className="text-sm font-semibold mt-3">{feature.title}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {feature.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </section>
-
-        <section className="glass-card p-6 md:p-8 flex flex-col gap-6 animate-fade-up delay-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Access</p>
-              <h2 className="text-2xl font-semibold">Enter with a code</h2>
-            </div>
-            <div className="glass-pill text-[10px]">
-              {isAuthorized ? "GRANTED" : "LOCKED"}
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Share the access code with friends. Everyone else stays locked out
-            of the camera and results.
+        {/* Hero */}
+        <div className="space-y-4">
+          <span className="glass-pill text-[10px]">PRIVATE BETA</span>
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-glow">
+            Calorie AI
+          </h1>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Snap a photo of your food. Get instant calorie and macro estimates powered by AI.
           </p>
-          <Button size="lg" onClick={handleCta}>
-            {isAuthorized ? "Open App" : "Enter Access Code"}
-          </Button>
-        </section>
+        </div>
 
-        <footer className="text-center text-xs text-muted-foreground">
-          Built for mobile. Best experience on iPhone or Android.
-        </footer>
+        {/* Main CTA */}
+        <Button size="lg" onClick={handleCta} className="h-14 px-8 text-base shine">
+          {isAuthorized ? "Open Scanner" : "Enter Access Code"}
+        </Button>
+
+        {/* Features */}
+        <div className="grid grid-cols-3 gap-3 w-full mt-4">
+          <div className="glass-panel p-4 text-center">
+            <Zap className="h-5 w-5 text-amber-300 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground">Instant</p>
+          </div>
+          <div className="glass-panel p-4 text-center">
+            <Shield className="h-5 w-5 text-emerald-300 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground">Private</p>
+          </div>
+          <div className="glass-panel p-4 text-center">
+            <Camera className="h-5 w-5 text-cyan-300 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground">Simple</p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="text-xs text-muted-foreground mt-4">
+          No account needed · Images never stored
+        </p>
       </div>
 
+      {/* Access Code Modal */}
       {showAccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
-          <Card className="w-full max-w-sm p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="glass-panel p-2">
-                <Lock className="h-4 w-4 text-cyan-200" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <Card className="w-full max-w-sm p-6 space-y-5 animate-fade-up">
+            <div className="text-center space-y-2">
+              <div className="glass-panel p-3 w-fit mx-auto">
+                <Lock className="h-5 w-5 text-cyan-300" />
               </div>
-              <div>
-                <p className="text-sm font-semibold">Enter access code</p>
-                <p className="text-xs text-muted-foreground">
-                  This app is locked for friends only.
-                </p>
-              </div>
+              <h2 className="text-lg font-semibold">Enter access code</h2>
+              <p className="text-xs text-muted-foreground">
+                This app is invite-only during beta
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                type="password"
-                value={code}
-                onChange={(e) => {
-                  setCode(e.target.value);
-                  setCodeError("");
-                }}
-                placeholder="Access code"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
-                autoFocus
-              />
-              {codeError && (
-                <p className="text-xs text-destructive">{codeError}</p>
-              )}
-              <div className="flex gap-2">
-                <Button type="submit" className="flex-1">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="password"
+                  value={code}
+                  onChange={(e) => {
+                    setCode(e.target.value);
+                    setCodeError("");
+                  }}
+                  placeholder="Enter code"
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-lg tracking-widest text-white/90 placeholder:text-white/30 backdrop-blur focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+                  autoFocus
+                />
+                {codeError && (
+                  <p className="text-xs text-destructive text-center mt-2">{codeError}</p>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Button type="submit" className="flex-1 h-12">
                   Unlock
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
+                  className="h-12"
                   onClick={() => {
                     setShowAccess(false);
                     setCode("");
