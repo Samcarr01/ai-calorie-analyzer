@@ -34,8 +34,9 @@ const MEAL_ANALYSIS_JSON_SCHEMA = {
           carbohydrates: { type: "number" },
           fat: { type: "number" },
           fiber: { type: ["number", "null"] },
+          sugar: { type: ["number", "null"] },
         },
-        required: ["protein", "carbohydrates", "fat", "fiber"],
+        required: ["protein", "carbohydrates", "fat", "fiber", "sugar"],
       },
       foodItems: {
         type: "array",

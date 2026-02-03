@@ -19,6 +19,7 @@ export const MacrosSchema = z.object({
   carbohydrates: z.number(),
   fat: z.number(),
   fiber: z.number().nullable(),
+  sugar: z.number().nullable(),
 });
 
 // Meal analysis schema
