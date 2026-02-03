@@ -55,11 +55,6 @@ export function CameraCapture({
 
       setStream(mediaStream);
       setHasPermission(true);
-
-      // Attach stream to video element
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
     } catch (error: any) {
       console.error("Camera access error:", error);
       setHasPermission(false);
@@ -77,6 +72,31 @@ export function CameraCapture({
       }
     }
   }, [facingMode, onError]);
+
+  // Attach stream to video element whenever it becomes available
+  useEffect(() => {
+    if (!videoRef.current || !stream) return;
+
+    const video = videoRef.current;
+    video.srcObject = stream;
+
+    const tryPlay = () => {
+      video
+        .play()
+        .catch((error) =>
+          console.warn("Video autoplay failed, user interaction may be required:", error)
+        );
+    };
+
+    // Some browsers require waiting for metadata before play
+    if (video.readyState >= 1) {
+      tryPlay();
+    } else {
+      video.onloadedmetadata = () => {
+        tryPlay();
+      };
+    }
+  }, [stream]);
 
   // Initialize camera on mount and when facing mode changes
   useEffect(() => {
