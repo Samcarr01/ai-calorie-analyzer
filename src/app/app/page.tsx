@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CameraCapture } from "@/components/CameraCapture";
 import { AnalyzingState } from "@/components/AnalyzingState";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import type { AnalyzeResponse } from "@/types/nutrition";
 import { hasAccess } from "@/lib/access";
