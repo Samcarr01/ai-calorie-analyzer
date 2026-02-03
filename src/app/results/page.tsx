@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, RotateCcw, RefreshCw, Loader2 } from "lucide-react";
 import type { MealAnalysis, AnalyzeResponse } from "@/types/nutrition";
-import { hasAccess } from "@/lib/access";
+import { checkAccess } from "@/lib/access";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -23,27 +23,31 @@ export default function ResultsPage() {
   const [refineError, setRefineError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Retrieve from sessionStorage
-    const storedResult = sessionStorage.getItem("analysisResult");
-    const storedImage = sessionStorage.getItem("capturedImage");
-
-    if (storedResult) {
-      try {
-        setData(JSON.parse(storedResult));
-        setImageData(storedImage);
-      } catch (error) {
-        console.error("Failed to parse stored result:", error);
+    // Check auth and load data
+    const init = async () => {
+      const authorized = await checkAccess();
+      if (!authorized) {
+        router.replace("/");
+        return;
       }
-    }
-    setIsLoading(false);
-  }, []);
+      setIsAuthorized(true);
 
-  useEffect(() => {
-    if (!hasAccess()) {
-      router.replace("/");
-      return;
-    }
-    setIsAuthorized(true);
+      // Retrieve from sessionStorage
+      const storedResult = sessionStorage.getItem("analysisResult");
+      const storedImage = sessionStorage.getItem("capturedImage");
+
+      if (storedResult) {
+        try {
+          setData(JSON.parse(storedResult));
+          setImageData(storedImage);
+        } catch (error) {
+          console.error("Failed to parse stored result:", error);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    init();
   }, [router]);
 
   // Redirect if no data

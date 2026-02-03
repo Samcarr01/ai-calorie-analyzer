@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { openai } from "@/lib/openai";
 import { NUTRITION_SYSTEM_PROMPT, buildUserPrompt } from "@/lib/prompts";
 import {
@@ -8,6 +9,8 @@ import {
   type MealAnalysis,
 } from "@/types/nutrition";
 import { ZodError } from "zod";
+
+const SESSION_COOKIE = "calorieai_session";
 
 // Maximum image size: 4MB
 const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
@@ -176,6 +179,19 @@ async function callOpenAIWithTimeout(
  */
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const cookieStore = await cookies();
+    const session = cookieStore.get(SESSION_COOKIE);
+
+    if (!session?.value) {
+      const response: AnalyzeResponse = {
+        success: false,
+        error: "Unauthorized. Please enter access code.",
+        code: "UNAUTHORIZED",
+      };
+      return NextResponse.json(response, { status: 401 });
+    }
+
     // Parse request body
     const body = await request.json();
 

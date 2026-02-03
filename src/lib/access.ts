@@ -1,20 +1,49 @@
-export const ACCESS_CODE = "imfat";
-const ACCESS_KEY = "calorieai_access";
+// Client-side access utilities - uses secure server-side session
 
-export function hasAccess(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem(ACCESS_KEY) === "granted";
-}
+let cachedAuth: boolean | null = null;
 
-export function setAccess(granted: boolean) {
-  if (typeof window === "undefined") return;
-  if (granted) {
-    localStorage.setItem(ACCESS_KEY, "granted");
-  } else {
-    localStorage.removeItem(ACCESS_KEY);
+export async function checkAccess(): Promise<boolean> {
+  try {
+    const response = await fetch("/api/auth", { method: "GET" });
+    const data = await response.json();
+    cachedAuth = data.authenticated === true;
+    return cachedAuth;
+  } catch {
+    return false;
   }
 }
 
-export function validateAccessCode(input: string): boolean {
-  return input.trim().toLowerCase() === ACCESS_CODE;
+export async function validateAndSetAccess(code: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      cachedAuth = true;
+      return { success: true };
+    }
+
+    return { success: false, error: data.error || "Invalid code" };
+  } catch {
+    return { success: false, error: "Connection failed" };
+  }
+}
+
+export async function clearAccess(): Promise<void> {
+  try {
+    await fetch("/api/auth", { method: "DELETE" });
+    cachedAuth = false;
+  } catch {
+    // Ignore errors
+  }
+}
+
+// Sync check using cached value (for initial render)
+export function hasAccessCached(): boolean {
+  return cachedAuth === true;
 }

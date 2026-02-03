@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Lock, Camera, Zap, Shield } from "lucide-react";
-import { hasAccess, setAccess, validateAccessCode } from "@/lib/access";
+import { Lock, Camera, Zap, Shield, Instagram, Loader2 } from "lucide-react";
+import { checkAccess, validateAndSetAccess } from "@/lib/access";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -13,11 +13,14 @@ export default function LandingPage() {
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (hasAccess()) {
-      setIsAuthorized(true);
-    }
+    checkAccess().then((authorized) => {
+      setIsAuthorized(authorized);
+      setIsLoading(false);
+    });
   }, []);
 
   const handleCta = () => {
@@ -28,18 +31,25 @@ export default function LandingPage() {
     setShowAccess(true);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (validateAccessCode(code)) {
-      setAccess(true);
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setCodeError("");
+
+    const result = await validateAndSetAccess(code);
+
+    if (result.success) {
       setIsAuthorized(true);
       setShowAccess(false);
       setCode("");
-      setCodeError("");
       router.push("/app");
-      return;
+    } else {
+      setCodeError(result.error || "Invalid code");
     }
-    setCodeError("Incorrect code");
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -62,9 +72,33 @@ export default function LandingPage() {
         </div>
 
         {/* Main CTA */}
-        <Button size="lg" onClick={handleCta} className="h-14 px-8 text-base shine">
-          {isAuthorized ? "Open Scanner" : "Enter Access Code"}
+        <Button
+          size="lg"
+          onClick={handleCta}
+          disabled={isLoading}
+          className="h-14 px-8 text-base shine"
+        >
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : isAuthorized ? (
+            "Open Scanner"
+          ) : (
+            "Enter Access Code"
+          )}
         </Button>
+
+        {/* Instagram CTA */}
+        {!isAuthorized && !isLoading && (
+          <a
+            href="https://instagram.com/samcarr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors"
+          >
+            <Instagram className="h-4 w-4" />
+            <span>DM @samcarr on Instagram for access</span>
+          </a>
+        )}
 
         {/* Features */}
         <div className="grid grid-cols-3 gap-3 w-full mt-4">
@@ -98,7 +132,7 @@ export default function LandingPage() {
               </div>
               <h2 className="text-lg font-semibold">Enter access code</h2>
               <p className="text-xs text-muted-foreground">
-                This app is invite-only during beta
+                DM <span className="text-cyan-300">@samcarr</span> on Instagram to get the code
               </p>
             </div>
 
@@ -112,7 +146,8 @@ export default function LandingPage() {
                     setCodeError("");
                   }}
                   placeholder="Enter code"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-lg tracking-widest text-white/90 placeholder:text-white/30 backdrop-blur focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+                  disabled={isSubmitting}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-lg tracking-widest text-white/90 placeholder:text-white/30 backdrop-blur focus:outline-none focus:ring-2 focus:ring-cyan-400/50 disabled:opacity-50"
                   autoFocus
                 />
                 {codeError && (
@@ -120,13 +155,18 @@ export default function LandingPage() {
                 )}
               </div>
               <div className="flex gap-3">
-                <Button type="submit" className="flex-1 h-12">
-                  Unlock
+                <Button type="submit" disabled={isSubmitting} className="flex-1 h-12">
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Unlock"
+                  )}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="h-12"
+                  disabled={isSubmitting}
                   onClick={() => {
                     setShowAccess(false);
                     setCode("");
@@ -137,6 +177,16 @@ export default function LandingPage() {
                 </Button>
               </div>
             </form>
+
+            <a
+              href="https://instagram.com/samcarr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors"
+            >
+              <Instagram className="h-3 w-3" />
+              <span>Get code from @samcarr</span>
+            </a>
           </Card>
         </div>
       )}

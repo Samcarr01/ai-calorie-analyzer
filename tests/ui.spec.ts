@@ -10,6 +10,12 @@ test.describe("Landing Page", () => {
     await expect(page.getByRole("button", { name: /enter access code|open scanner/i })).toBeVisible();
   });
 
+  test("should show Instagram DM message", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.locator("text=@samcarr")).toBeVisible();
+  });
+
   test("should show access modal when clicking CTA", async ({ page }) => {
     await page.goto("/");
 
@@ -26,7 +32,7 @@ test.describe("Landing Page", () => {
     await page.locator('input[type="password"]').fill("wrong");
     await page.getByRole("button", { name: /unlock/i }).click();
 
-    await expect(page.locator("text=Incorrect")).toBeVisible();
+    await expect(page.locator("text=Invalid")).toBeVisible();
   });
 
   test("should accept valid code and redirect", async ({ page }) => {
@@ -38,55 +44,46 @@ test.describe("Landing Page", () => {
 
     await expect(page).toHaveURL("/app");
   });
-
-  test("should show Open Scanner when already authorized", async ({ page }) => {
-    await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.setItem("calorieai_access", "granted");
-    });
-    await page.reload();
-
-    await expect(page.getByRole("button", { name: /open scanner/i })).toBeVisible();
-  });
 });
 
 test.describe("App Page", () => {
   test.beforeEach(async ({ page }) => {
+    // Authenticate via API before each test
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.setItem("calorieai_access", "granted");
-    });
+    await page.getByRole("button", { name: /enter access code/i }).click();
+    await page.locator('input[type="password"]').fill(ACCESS_CODE);
+    await page.getByRole("button", { name: /unlock/i }).click();
+    await expect(page).toHaveURL("/app");
   });
 
   test("should display scanner UI", async ({ page }) => {
-    await page.goto("/app");
-
     await expect(page.locator("text=Scan your meal")).toBeVisible();
   });
 
   test("should have back button", async ({ page }) => {
-    await page.goto("/app");
-
     const backButton = page.getByRole("button").first();
     await expect(backButton).toBeVisible();
   });
+});
 
+test.describe("App Page - Unauthorized", () => {
   test("should redirect if not authorized", async ({ page }) => {
-    await page.evaluate(() => {
-      localStorage.removeItem("calorieai_access");
-    });
-
+    // Go directly to /app without auth
     await page.goto("/app");
+
+    // Should redirect to landing
     await expect(page).toHaveURL("/");
   });
 });
 
 test.describe("Results Page", () => {
   test.beforeEach(async ({ page }) => {
+    // Authenticate first
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.setItem("calorieai_access", "granted");
-    });
+    await page.getByRole("button", { name: /enter access code/i }).click();
+    await page.locator('input[type="password"]').fill(ACCESS_CODE);
+    await page.getByRole("button", { name: /unlock/i }).click();
+    await expect(page).toHaveURL("/app");
   });
 
   test("should redirect if no data", async ({ page }) => {
@@ -106,7 +103,6 @@ test.describe("Results Page", () => {
       notes: null,
     };
 
-    await page.goto("/app");
     await page.evaluate((data) => {
       sessionStorage.setItem("analysisResult", JSON.stringify(data));
       sessionStorage.setItem("capturedImage", "dGVzdA==");
@@ -127,7 +123,6 @@ test.describe("Results Page", () => {
       notes: null,
     };
 
-    await page.goto("/app");
     await page.evaluate((data) => {
       sessionStorage.setItem("analysisResult", JSON.stringify(data));
       sessionStorage.setItem("capturedImage", "dGVzdA==");
@@ -147,12 +142,28 @@ test.describe("Mobile", () => {
     await expect(page.locator("h1")).toContainText("Calorie AI");
   });
 
-  test("app works on mobile", async ({ page }) => {
+  test("app works on mobile after auth", async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.setItem("calorieai_access", "granted");
-    });
-    await page.goto("/app");
+    await page.getByRole("button", { name: /enter access code/i }).click();
+    await page.locator('input[type="password"]').fill(ACCESS_CODE);
+    await page.getByRole("button", { name: /unlock/i }).click();
+
+    await expect(page).toHaveURL("/app");
     await expect(page.locator("text=Scan your meal")).toBeVisible();
+  });
+});
+
+test.describe("API Security", () => {
+  test("analyze API should reject unauthorized requests", async ({ request }) => {
+    const response = await request.post("/api/analyze", {
+      data: {
+        image: "test",
+        mimeType: "image/jpeg",
+      },
+    });
+
+    expect(response.status()).toBe(401);
+    const json = await response.json();
+    expect(json.code).toBe("UNAUTHORIZED");
   });
 });

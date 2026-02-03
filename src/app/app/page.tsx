@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import type { AnalyzeResponse } from "@/types/nutrition";
-import { hasAccess } from "@/lib/access";
+import { checkAccess } from "@/lib/access";
 
 export default function AppPage() {
   const router = useRouter();
@@ -16,13 +16,17 @@ export default function AppPage() {
   const [error, setError] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (!hasAccess()) {
-      router.replace("/");
-      return;
-    }
-    setIsAuthorized(true);
+    checkAccess().then((authorized) => {
+      if (!authorized) {
+        router.replace("/");
+        return;
+      }
+      setIsAuthorized(true);
+      setIsChecking(false);
+    });
   }, [router]);
 
   const handleCapture = async (
@@ -48,6 +52,11 @@ export default function AppPage() {
         sessionStorage.setItem("capturedImage", imageData);
         router.push("/results");
       } else {
+        // Handle unauthorized error
+        if (result.code === "UNAUTHORIZED") {
+          router.replace("/");
+          return;
+        }
         setError(result.error || "Analysis failed. Please try again.");
         setIsAnalyzing(false);
         setCapturedImage(null);
@@ -64,7 +73,7 @@ export default function AppPage() {
     setError(errorMessage);
   };
 
-  if (!isAuthorized) {
+  if (isChecking || !isAuthorized) {
     return (
       <main className="page-shell flex items-center justify-center">
         <div className="glass-panel px-6 py-4 flex items-center gap-3">
