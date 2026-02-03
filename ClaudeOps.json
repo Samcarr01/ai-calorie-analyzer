@@ -1,0 +1,91 @@
+{
+  "project": "ai-calorie-analyzer",
+  "version": "1.0.0",
+  "description": "Mobile-first AI calorie and nutrition analyzer using GPT-5.2 vision",
+  
+  "stack": {
+    "language": "typescript",
+    "framework": "nextjs-14",
+    "styling": "tailwindcss",
+    "components": "shadcn-ui",
+    "ai": "openai-gpt5.2",
+    "deployment": "vercel"
+  },
+
+  "constraints": {
+    "noDatabase": true,
+    "noAuth": true,
+    "mobileFirst": true,
+    "stateless": true,
+    "maxFileSize": "50KB"
+  },
+
+  "modules": [
+    {
+      "name": "api",
+      "doc": "Claude-api.md",
+      "features": ["analyze-endpoint", "gpt5-integration"]
+    },
+    {
+      "name": "ui",
+      "doc": "Claude-ui.md", 
+      "features": ["camera-capture", "results-display", "loading-states"]
+    }
+  ],
+
+  "buildChain": [
+    {
+      "order": 1,
+      "name": "project-scaffold",
+      "prompt": "prompts/01-project-scaffold.md",
+      "outputs": ["package.json", "tsconfig.json", "src/app/layout.tsx"]
+    },
+    {
+      "order": 2,
+      "name": "api-analyze",
+      "prompt": "prompts/02-api-analyze.md",
+      "outputs": ["src/app/api/analyze/route.ts", "src/lib/openai.ts", "src/types/nutrition.ts"]
+    },
+    {
+      "order": 3,
+      "name": "ui-camera",
+      "prompt": "prompts/03-ui-camera.md",
+      "outputs": ["src/components/CameraCapture.tsx", "src/lib/image-utils.ts"]
+    },
+    {
+      "order": 4,
+      "name": "ui-results",
+      "prompt": "prompts/04-ui-results.md",
+      "outputs": ["src/app/results/page.tsx", "src/components/NutritionCard.tsx"]
+    },
+    {
+      "order": 5,
+      "name": "deploy",
+      "prompt": "prompts/05-deploy.md",
+      "outputs": ["vercel.json", "public/manifest.json"]
+    }
+  ],
+
+  "environments": {
+    "development": {
+      "variables": ["OPENAI_API_KEY"]
+    },
+    "production": {
+      "variables": ["OPENAI_API_KEY", "NEXT_PUBLIC_APP_URL"],
+      "platform": "vercel"
+    }
+  },
+
+  "testing": {
+    "unit": false,
+    "integration": false,
+    "e2e": false,
+    "manual": true
+  },
+
+  "metadata": {
+    "created": "2025-02-03",
+    "author": "ClaudeOps Compiler",
+    "targetPlatforms": ["lovable", "replit", "claude-code", "codex", "gemini"]
+  }
+}
