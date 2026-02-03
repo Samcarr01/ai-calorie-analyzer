@@ -1,98 +1,163 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CameraCapture } from "@/components/CameraCapture";
-import { AnalyzingState } from "@/components/AnalyzingState";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import type { AnalyzeResponse } from "@/types/nutrition";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Lock, Sparkles, ShieldCheck, ScanLine } from "lucide-react";
+import { hasAccess, setAccess, validateAccessCode } from "@/lib/access";
 
-export default function HomePage() {
+export default function LandingPage() {
   const router = useRouter();
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [showAccess, setShowAccess] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  const handleCapture = async (imageData: string, mimeType: string, context?: string) => {
-    setError(null);
-    setCapturedImage(imageData);
-    setIsAnalyzing(true);
+  useEffect(() => {
+    setIsAuthorized(hasAccess());
+  }, []);
 
-    try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageData, mimeType, context }),
-      });
-
-      const result: AnalyzeResponse = await response.json();
-
-      if (result.success && result.data) {
-        // Store result and navigate
-        sessionStorage.setItem("analysisResult", JSON.stringify(result.data));
-        sessionStorage.setItem("capturedImage", imageData);
-        router.push("/results");
-      } else {
-        setError(
-          result.error || "Analysis failed. Please try again with a different photo."
-        );
-        setIsAnalyzing(false);
-        setCapturedImage(null);
-      }
-    } catch (err) {
-      console.error("Network error:", err);
-      setError(
-        "Unable to connect to the server. Please check your internet connection and try again."
-      );
-      setIsAnalyzing(false);
-      setCapturedImage(null);
+  const handleCta = () => {
+    if (hasAccess()) {
+      router.push("/app");
+      return;
     }
+    setShowAccess(true);
   };
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (validateAccessCode(code)) {
+      setAccess(true);
+      setIsAuthorized(true);
+      setShowAccess(false);
+      setCode("");
+      setCodeError("");
+      router.push("/app");
+      return;
+    }
+    setCodeError("Incorrect access code. Try again.");
   };
 
-  // Show analyzing state when processing
-  if (isAnalyzing && capturedImage) {
-    return <AnalyzingState imageData={capturedImage} />;
-  }
-
-  // Main home page UI
   return (
-    <main className="min-h-screen flex flex-col p-4 bg-background">
-      {/* Header */}
-      <header className="text-center mb-8 mt-8">
-        <h1 className="text-3xl font-bold mb-2">AI Calorie Analyzer</h1>
-        <p className="text-muted-foreground">
-          Take a photo of your meal to get instant nutrition estimates
-        </p>
-      </header>
+    <main className="page-shell">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+        <header className="text-center space-y-4 animate-fade-up">
+          <div className="flex justify-center">
+            <span className="glass-pill">Liquid Glass • iOS 26</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-glow">
+            Calorie AI
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            A private, Apple-like nutrition scanner. Capture a meal and get a
+            clean breakdown in seconds.
+          </p>
+        </header>
 
-      {/* Error alert */}
-      {error && (
-        <Alert variant="destructive" className="mb-6 max-w-2xl mx-auto w-full">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        <section className="grid gap-4 sm:grid-cols-3 animate-fade-up delay-1">
+          {[
+            {
+              title: "Private by default",
+              description: "No accounts, no storage. Your photo stays yours.",
+              icon: ShieldCheck,
+            },
+            {
+              title: "Liquid glass UI",
+              description: "Depth, blur, and glow inspired by iOS 26.",
+              icon: Sparkles,
+            },
+            {
+              title: "Instant analysis",
+              description: "Calories, macros, and confidence in moments.",
+              icon: ScanLine,
+            },
+          ].map((feature) => (
+            <Card key={feature.title} className="p-5">
+              <feature.icon className="h-5 w-5 text-cyan-200" />
+              <p className="text-sm font-semibold mt-4">{feature.title}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                {feature.description}
+              </p>
+            </Card>
+          ))}
+        </section>
 
-      {/* Camera capture component */}
-      <div className="flex-1 flex items-start justify-center">
-        <CameraCapture
-          onCapture={handleCapture}
-          onError={handleError}
-          disabled={isAnalyzing}
-        />
+        <section className="glass-card p-6 md:p-8 flex flex-col gap-6 animate-fade-up delay-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Private access</p>
+              <h2 className="text-2xl font-semibold">Enter with a code</h2>
+            </div>
+            <div className="glass-pill text-[10px] tracking-[0.3em]">
+              {isAuthorized ? "GRANTED" : "LOCKED"}
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Share the access code with friends. Everyone else stays locked out
+            of the camera and results.
+          </p>
+          <Button size="lg" onClick={handleCta}>
+            {isAuthorized ? "Open App" : "Enter Access Code"}
+          </Button>
+        </section>
+
+        <footer className="text-center text-xs text-muted-foreground">
+          Built for mobile. Best experience on iPhone or Android.
+        </footer>
       </div>
 
-      {/* Footer info */}
-      <footer className="text-center mt-8 mb-4">
-        <p className="text-xs text-muted-foreground">
-          Estimates are based on AI analysis and may not be 100% accurate
-        </p>
-      </footer>
+      {showAccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <Card className="w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="glass-panel p-2">
+                <Lock className="h-4 w-4 text-cyan-200" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Enter access code</p>
+                <p className="text-xs text-muted-foreground">
+                  This app is locked for friends only.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input
+                type="password"
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                  setCodeError("");
+                }}
+                placeholder="Access code"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
+                autoFocus
+              />
+              {codeError && (
+                <p className="text-xs text-destructive">{codeError}</p>
+              )}
+              <div className="flex gap-2">
+                <Button type="submit" className="flex-1">
+                  Unlock
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowAccess(false);
+                    setCode("");
+                    setCodeError("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
     </main>
   );
 }

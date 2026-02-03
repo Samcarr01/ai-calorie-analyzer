@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, RotateCcw, RefreshCw, Loader2 } from "lucide-react";
 import type { MealAnalysis, AnalyzeResponse } from "@/types/nutrition";
+import { hasAccess } from "@/lib/access";
 
 export default function ResultsPage() {
   const router = useRouter();
   const [data, setData] = useState<MealAnalysis | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [showRefine, setShowRefine] = useState(false);
   const [refineContext, setRefineContext] = useState("");
   const [isRefining, setIsRefining] = useState(false);
@@ -36,17 +38,25 @@ export default function ResultsPage() {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (!hasAccess()) {
+      router.replace("/");
+      return;
+    }
+    setIsAuthorized(true);
+  }, [router]);
+
   // Redirect if no data
   useEffect(() => {
-    if (!isLoading && !data) {
-      router.replace("/");
+    if (!isLoading && isAuthorized && !data) {
+      router.replace("/app");
     }
-  }, [isLoading, data, router]);
+  }, [isLoading, isAuthorized, data, router]);
 
   const handleAnalyzeAnother = () => {
     sessionStorage.removeItem("analysisResult");
     sessionStorage.removeItem("capturedImage");
-    router.push("/");
+    router.push("/app");
   };
 
   const handleRefine = async () => {
@@ -83,128 +93,139 @@ export default function ResultsPage() {
     }
   };
 
-  if (isLoading || !data) {
+  if (isLoading || !data || !isAuthorized) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+      <main className="page-shell flex items-center justify-center">
+        <div className="glass-panel px-6 py-5 flex items-center gap-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-cyan-300 border-t-transparent" />
+          <span className="text-sm text-muted-foreground">Loading results</span>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen p-4 pb-24 bg-background">
-      {/* Header */}
-      <header className="flex items-center gap-2 mb-6 max-w-2xl mx-auto">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.back()}
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-xl font-bold">Nutrition Results</h1>
-      </header>
+    <main className="page-shell pb-28">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <header className="flex items-center justify-between animate-fade-up">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="text-center flex-1">
+            <span className="glass-pill text-[10px] tracking-[0.3em]">
+              RESULTS
+            </span>
+            <h1 className="text-xl font-semibold mt-3">Nutrition Summary</h1>
+          </div>
+          <div className="w-10" />
+        </header>
 
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Image thumbnail */}
-        {imageData && (
-          <Card className="overflow-hidden">
-            <img
-              src={`data:image/jpeg;base64,${imageData}`}
-              alt="Analyzed meal"
-              className="w-full h-48 object-cover"
-            />
+        <div className="grid gap-6 md:grid-cols-[1.1fr_0.9fr] animate-fade-up delay-1">
+          {imageData && (
+            <Card className="overflow-hidden">
+              <div className="relative h-56 md:h-full">
+                <img
+                  src={`data:image/jpeg;base64,${imageData}`}
+                  alt="Analyzed meal"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute left-4 bottom-4 glass-pill text-[10px] tracking-[0.3em]">
+                  CAPTURED
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <Card className="p-6 space-y-6">
+            <div className="text-center">
+              <AnimatedNumber
+                value={data.totalCalories}
+                className="text-5xl font-semibold text-glow"
+              />
+              <p className="text-muted-foreground mt-1">calories</p>
+            </div>
+            <NutritionCard macros={data.macros} />
           </Card>
-        )}
-
-        {/* Total calories */}
-        <div className="text-center">
-          <AnimatedNumber
-            value={data.totalCalories}
-            className="text-5xl font-bold"
-          />
-          <p className="text-muted-foreground mt-1">calories</p>
         </div>
 
-        {/* Macros */}
-        <NutritionCard macros={data.macros} />
+        <div className="space-y-6 animate-fade-up delay-2">
+          <ConfidenceIndicator level={data.confidence} />
 
-        {/* Confidence */}
-        <ConfidenceIndicator level={data.confidence} />
-
-        {/* Refine analysis section */}
-        {!showRefine ? (
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setShowRefine(true)}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Not accurate? Add details to refine
-          </Button>
-        ) : (
-          <Card className="p-4 space-y-3">
-            <p className="text-sm font-medium">What is this food/drink?</p>
-            <input
-              type="text"
-              placeholder="e.g., 'milk tea with boba and brown sugar'"
-              value={refineContext}
-              onChange={(e) => setRefineContext(e.target.value)}
-              disabled={isRefining}
-              className="w-full px-3 py-2 text-sm border rounded-md bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              maxLength={500}
-              autoFocus
-            />
-            {refineError && (
-              <p className="text-sm text-destructive">{refineError}</p>
-            )}
-            <div className="flex gap-2">
-              <Button
-                onClick={handleRefine}
-                disabled={isRefining || !refineContext.trim()}
-                className="flex-1"
-              >
-                {isRefining ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  "Re-analyze"
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setShowRefine(false);
-                  setRefineContext("");
-                  setRefineError(null);
-                }}
+          {!showRefine ? (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowRefine(true)}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Not accurate? Add details to refine
+            </Button>
+          ) : (
+            <Card className="p-4 space-y-3">
+              <p className="text-sm font-medium">What is this food/drink?</p>
+              <input
+                type="text"
+                placeholder="e.g., 'milk tea with boba and brown sugar'"
+                value={refineContext}
+                onChange={(e) => setRefineContext(e.target.value)}
                 disabled={isRefining}
-              >
-                Cancel
-              </Button>
-            </div>
-          </Card>
-        )}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
+                maxLength={500}
+                autoFocus
+              />
+              {refineError && (
+                <p className="text-sm text-destructive">{refineError}</p>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleRefine}
+                  disabled={isRefining || !refineContext.trim()}
+                  className="flex-1"
+                >
+                  {isRefining ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    "Re-analyze"
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setShowRefine(false);
+                    setRefineContext("");
+                    setRefineError(null);
+                  }}
+                  disabled={isRefining}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </Card>
+          )}
 
-        {/* Food items */}
-        <FoodItemList items={data.foodItems} />
+          <FoodItemList items={data.foodItems} />
 
-        {/* Notes */}
-        {data.notes && (
-          <Card className="p-4 bg-muted">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Note:</span> {data.notes}
-            </p>
-          </Card>
-        )}
+          {data.notes && (
+            <Card className="p-4">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium">Note:</span> {data.notes}
+              </p>
+            </Card>
+          )}
+        </div>
       </div>
 
-      {/* Action button - fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-        <div className="max-w-2xl mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 p-4">
+        <div className="mx-auto max-w-5xl glass-panel p-3">
           <Button
             className="w-full h-12"
             onClick={handleAnalyzeAnother}

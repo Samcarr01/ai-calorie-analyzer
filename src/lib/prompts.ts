@@ -11,7 +11,7 @@ CRITICAL RULES:
 2. All values are ESTIMATES - be reasonably accurate but acknowledge uncertainty
 3. If you cannot identify items clearly, set confidence to "low"
 4. If the image contains no food/drinks, return empty foodItems, 0 values, confidence "low", and explain in notes
-5. Always include ALL schema fields. Use null only for fiber and notes when truly uncertain
+5. Always include ALL schema fields. Use null only for fiber, sugar, and notes when truly uncertain
 6. Round calories to nearest 5, macros to nearest 1g
 7. List EACH distinct food/drink item separately (don't combine "rice and chicken" - list separately)
 8. totalCalories MUST equal the sum of all foodItems calories

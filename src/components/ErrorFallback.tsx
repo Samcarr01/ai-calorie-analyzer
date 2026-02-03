@@ -14,10 +14,10 @@ export function ErrorFallback({
   resetErrorBoundary,
 }: ErrorFallbackProps) {
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="max-w-md p-6 text-center space-y-4">
-        <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto" />
-        <h1 className="text-xl font-bold">Something went wrong</h1>
+    <main className="page-shell flex items-center justify-center">
+      <Card className="max-w-md p-6 text-center space-y-4 animate-fade-up">
+        <AlertTriangle className="h-12 w-12 text-amber-300 mx-auto" />
+        <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="text-muted-foreground">
           We encountered an unexpected error. Please try again.
         </p>

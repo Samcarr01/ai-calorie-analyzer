@@ -10,8 +10,8 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html>
-      <body>
+    <html className="dark">
+      <body className="antialiased">
         <ErrorFallback error={error} resetErrorBoundary={reset} />
       </body>
     </html>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import type { Macros } from "@/types/nutrition";
 
 interface NutritionCardProps {
@@ -21,19 +20,19 @@ export function NutritionCard({ macros }: NutritionCardProps) {
       label: "Protein",
       value: macros.protein,
       unit: "g",
-      color: "bg-blue-500",
+      color: "bg-cyan-300",
     },
     {
       label: "Carbs",
       value: macros.carbohydrates,
       unit: "g",
-      color: "bg-green-500",
+      color: "bg-emerald-300",
     },
     {
       label: "Fat",
       value: macros.fat,
       unit: "g",
-      color: "bg-yellow-500",
+      color: "bg-amber-200",
     },
   ];
 
@@ -45,7 +44,7 @@ export function NutritionCard({ macros }: NutritionCardProps) {
       label: "Sugar",
       value: macros.sugar,
       unit: "g",
-      color: "bg-pink-500",
+      color: "bg-rose-300",
     });
   }
 
@@ -54,18 +53,18 @@ export function NutritionCard({ macros }: NutritionCardProps) {
       label: "Fiber",
       value: macros.fiber,
       unit: "g",
-      color: "bg-purple-500",
+      color: "bg-violet-300",
     });
   }
 
   return (
     <div className="space-y-3">
       {/* Primary macros - 3 column grid */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {primaryMacros.map((item) => (
-          <Card key={item.label} className="p-4 text-center">
+          <div key={item.label} className="glass-panel p-4 text-center">
             <div className={`w-2 h-2 rounded-full ${item.color} mx-auto mb-2`} />
-            <p className="text-2xl font-semibold">
+            <p className="text-2xl font-semibold text-white/90">
               {item.value}
               <span className="text-sm font-normal text-muted-foreground ml-0.5">
                 {item.unit}
@@ -74,18 +73,22 @@ export function NutritionCard({ macros }: NutritionCardProps) {
             <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
               {item.label}
             </p>
-          </Card>
+          </div>
         ))}
       </div>
 
       {/* Secondary macros - 2 column grid if present */}
       {secondaryMacros.length > 0 && (
-        <div className={`grid gap-3 ${secondaryMacros.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+        <div
+          className={`grid gap-3 ${
+            secondaryMacros.length === 1 ? "grid-cols-1" : "grid-cols-2"
+          }`}
+        >
           {secondaryMacros.map((item) => (
-            <Card key={item.label} className="p-3 text-center">
+            <div key={item.label} className="glass-panel p-3 text-center">
               <div className="flex items-center justify-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                <p className="text-lg font-semibold">
+                <p className="text-lg font-semibold text-white/90">
                   {item.value}
                   <span className="text-sm font-normal text-muted-foreground ml-0.5">
                     {item.unit}
@@ -95,7 +98,7 @@ export function NutritionCard({ macros }: NutritionCardProps) {
                   {item.label}
                 </p>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}

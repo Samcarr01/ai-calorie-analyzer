@@ -38,24 +38,28 @@ export function AnalyzingState({ imageData }: AnalyzingStateProps) {
   }, []);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md p-6 space-y-6">
+    <main className="page-shell flex items-center justify-center">
+      <Card className="w-full max-w-md p-6 space-y-6 animate-fade-up">
         {/* Image preview with overlay */}
-        <div className="aspect-square relative rounded-lg overflow-hidden bg-muted">
+        <div className="aspect-square relative rounded-2xl overflow-hidden">
           <img
             src={`data:image/jpeg;base64,${imageData}`}
             alt="Captured meal"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center backdrop-blur-[2px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent" />
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+            <div className="relative h-14 w-14">
+              <div className="absolute inset-0 rounded-full border-2 border-white/30" />
+              <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-white animate-spin" />
+            </div>
           </div>
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         </div>
 
         {/* Progress section */}
         <div className="space-y-3 text-center">
           <p className="font-medium text-lg">{message}</p>
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} />
           <p className="text-sm text-muted-foreground">
             Usually takes 2-3 seconds
           </p>

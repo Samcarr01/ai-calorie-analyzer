@@ -206,7 +206,7 @@ export function CameraCapture({
   // Render loading state while checking permissions
   if (hasPermission === null) {
     return (
-      <Card className="w-full max-w-2xl mx-auto p-8">
+      <Card className="w-full max-w-3xl mx-auto p-8 text-center">
         <div className="flex flex-col items-center justify-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
@@ -220,7 +220,7 @@ export function CameraCapture({
   // Render upload-only UI if permission denied
   if (hasPermission === false) {
     return (
-      <Card className="w-full max-w-2xl mx-auto p-8">
+      <Card className="w-full max-w-3xl mx-auto p-8 text-center">
         <div className="flex flex-col items-center justify-center space-y-4">
           <Alert>
             <AlertDescription>
@@ -263,7 +263,7 @@ export function CameraCapture({
 
   // Render camera UI with permission granted
   return (
-    <Card className="w-full max-w-2xl mx-auto overflow-hidden">
+    <Card className="w-full max-w-3xl mx-auto overflow-hidden">
       <div className="relative">
         {/* Video preview */}
         <video
@@ -271,8 +271,14 @@ export function CameraCapture({
           autoPlay
           playsInline
           muted
-          className="w-full aspect-video object-cover bg-black"
+          className="w-full aspect-video object-cover bg-black/80"
         />
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+
+        <div className="absolute left-4 top-4 glass-pill text-[10px] tracking-[0.3em]">
+          LIVE
+        </div>
 
         {/* Camera switch button */}
         {hasFrontCamera && (
@@ -289,7 +295,7 @@ export function CameraCapture({
       </div>
 
       {/* Controls */}
-      <div className="p-4 space-y-3">
+      <div className="p-5 space-y-4">
         {/* Optional context input */}
         <input
           type="text"
@@ -297,7 +303,7 @@ export function CameraCapture({
           value={context}
           onChange={(e) => setContext(e.target.value)}
           disabled={disabled || isCapturing}
-          className="w-full px-3 py-2 text-sm border rounded-md bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/30"
           maxLength={500}
         />
 

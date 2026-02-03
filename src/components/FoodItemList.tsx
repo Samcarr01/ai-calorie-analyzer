@@ -13,16 +13,18 @@ export function FoodItemList({ items }: FoodItemListProps) {
   }
 
   return (
-    <Card className="p-4">
-      <h3 className="font-semibold mb-3 flex items-center gap-2">
-        <span className="text-lg">📋</span>
-        Detected Foods
-      </h3>
-      <ul className="space-y-3">
+    <Card className="p-5">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold">Detected Foods</h3>
+        <span className="glass-pill text-[10px] tracking-[0.25em]">
+          {items.length} ITEM{items.length > 1 ? "S" : ""}
+        </span>
+      </div>
+      <ul className="space-y-3 mt-4">
         {items.map((item, index) => (
           <li
             key={index}
-            className="flex items-center justify-between py-2 border-b last:border-0"
+            className="glass-panel flex items-center justify-between px-4 py-3"
           >
             <div className="flex-1">
               <p className="font-medium">{item.name}</p>
@@ -30,7 +32,7 @@ export function FoodItemList({ items }: FoodItemListProps) {
                 {item.estimatedPortion}
               </p>
             </div>
-            <p className="text-sm font-medium ml-4">
+            <p className="text-sm font-semibold ml-4 text-white/90">
               {item.calories} cal
             </p>
           </li>
