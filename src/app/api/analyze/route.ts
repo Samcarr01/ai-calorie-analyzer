@@ -140,7 +140,7 @@ async function callOpenAIWithTimeout(
             ],
           },
         ],
-        response_format: MEAL_ANALYSIS_JSON_SCHEMA,
+        text: MEAL_ANALYSIS_JSON_SCHEMA,
         max_output_tokens: 900,
         temperature: 0.2,
       },
