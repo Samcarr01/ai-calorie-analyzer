@@ -29,6 +29,33 @@ export default function AppPage() {
     });
   }, [router]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const root = document.documentElement;
+    const body = document.body;
+    const prevRootOverflow = root.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const mq = window.matchMedia("(max-width: 768px)");
+
+    const apply = () => {
+      if (mq.matches) {
+        root.style.overflow = "hidden";
+        body.style.overflow = "hidden";
+      } else {
+        root.style.overflow = prevRootOverflow;
+        body.style.overflow = prevBodyOverflow;
+      }
+    };
+
+    apply();
+    mq.addEventListener("change", apply);
+    return () => {
+      mq.removeEventListener("change", apply);
+      root.style.overflow = prevRootOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
+
   const handleCapture = async (
     imageData: string,
     mimeType: string,
@@ -89,25 +116,26 @@ export default function AppPage() {
   }
 
   return (
-    <main className="page-shell pt-6 pb-6 md:pt-12 md:pb-24 px-4 md:px-5 overflow-hidden md:overflow-visible flex flex-col min-h-[100svh] md:min-h-screen">
+    <main className="relative min-h-[100svh] md:min-h-screen overflow-hidden md:overflow-visible px-4 md:px-5 pt-4 md:pt-12 pb-4 md:pb-24 flex flex-col">
+      <div className="absolute left-4 right-4 top-4 z-30 flex md:hidden items-center justify-between gap-3 animate-fade-up pointer-events-none">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push("/")}
+          className="shrink-0 pointer-events-auto"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="text-center">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+            Scanner
+          </p>
+          <p className="font-display text-base font-semibold">Scan your meal</p>
+        </div>
+        <span className="glass-pill pointer-events-auto">Live</span>
+      </div>
+
       <div className="mx-auto w-full max-w-5xl flex flex-col gap-4 md:gap-6 flex-1 min-h-0">
-        <header className="flex md:hidden items-center justify-between gap-3 animate-fade-up">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="text-center">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Scanner
-            </p>
-            <p className="font-display text-base font-semibold">Scan your meal</p>
-          </div>
-          <span className="glass-pill">Live</span>
-        </header>
 
         <header className="hidden md:flex items-center justify-between gap-4 animate-fade-up">
           <div className="space-y-2">

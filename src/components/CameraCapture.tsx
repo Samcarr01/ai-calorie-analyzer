@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Camera, Upload, SwitchCamera, Loader2 } from "lucide-react";
+import { Camera, Upload, SwitchCamera, Loader2, ChevronUp } from "lucide-react";
 import { compressImage } from "@/lib/image-utils";
 
 interface CameraCaptureProps {
@@ -27,6 +27,9 @@ export function CameraCapture({
   const [isCapturing, setIsCapturing] = useState(false);
   const [hasFrontCamera, setHasFrontCamera] = useState(false);
   const [context, setContext] = useState("");
+  const [needsTap, setNeedsTap] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showNote, setShowNote] = useState(false);
 
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -97,6 +100,15 @@ export function CameraCapture({
     }
   }, [facingMode, onError]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   // Attach stream to video element whenever it becomes available
   useEffect(() => {
     if (!videoRef.current || !stream) return;
@@ -109,9 +121,14 @@ export function CameraCapture({
     const tryPlay = () => {
       video
         .play()
-        .catch((error) =>
-          console.warn("Video autoplay failed, user interaction may be required:", error)
-        );
+        .then(() => setNeedsTap(false))
+        .catch((error) => {
+          console.warn(
+            "Video autoplay failed, user interaction may be required:",
+            error
+          );
+          setNeedsTap(true);
+        });
     };
 
     // Some browsers require waiting for metadata before play
@@ -122,7 +139,20 @@ export function CameraCapture({
         tryPlay();
       };
     }
-  }, [stream]);
+  }, [stream, isMobile]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState !== "visible") return;
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => setNeedsTap(true));
+      } else {
+        startCamera();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [startCamera]);
 
   // Initialize camera on mount and when facing mode changes
   useEffect(() => {
@@ -228,6 +258,16 @@ export function CameraCapture({
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   }, [stream]);
 
+  const handleEnableCamera = useCallback(() => {
+    if (!videoRef.current) return;
+    videoRef.current
+      .play()
+      .then(() => setNeedsTap(false))
+      .catch(() => {
+        startCamera();
+      });
+  }, [startCamera]);
+
   // Render loading state while checking permissions
   if (hasPermission === null) {
     return (
@@ -291,68 +331,172 @@ export function CameraCapture({
   // Render camera UI with permission granted
   return (
     <Card className="w-full h-full max-w-5xl mx-auto overflow-hidden">
-      <div className="p-5 md:p-8 flex flex-col gap-6 h-full">
-        <div className="hidden md:flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-              Live scan
-            </p>
-            <p className="font-display text-lg md:text-xl font-semibold">
-              Frame your meal
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Keep the plate centered and steady.
-            </p>
-          </div>
-          {hasFrontCamera && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleCamera}
-              disabled={disabled || isCapturing}
-              className="h-11 w-11"
-            >
-              <SwitchCamera className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
-
-        <div className="md:hidden flex-1 min-h-0">
-          <div className="camera-frame h-[78svh] rounded-[2.4rem]">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="camera-feed"
-            />
-            <div className="camera-vignette" />
-            <div className="scan-line" />
-
-            <div className="absolute top-4 left-4 space-y-2">
-              <span className="glass-pill">LIVE</span>
-              <p className="text-xs text-white/80">Frame your meal</p>
+      <div
+        className={`p-4 md:p-8 flex flex-col h-full ${
+          isMobile ? "gap-0" : "gap-6"
+        }`}
+      >
+        {!isMobile && (
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                Live scan
+              </p>
+              <p className="font-display text-lg md:text-xl font-semibold">
+                Frame your meal
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Keep the plate centered and steady.
+              </p>
             </div>
-
             {hasFrontCamera && (
               <Button
                 variant="outline"
                 size="icon"
                 onClick={toggleCamera}
                 disabled={disabled || isCapturing}
-                className="absolute top-4 right-4 h-11 w-11"
+                className="h-11 w-11"
               >
                 <SwitchCamera className="h-5 w-5" />
               </Button>
             )}
+          </div>
+        )}
 
-            <div className="absolute inset-x-3 bottom-3 glass-panel p-3 space-y-3">
+        {isMobile ? (
+          <div className="flex-1 min-h-0">
+            <div className="camera-frame aspect-auto h-full rounded-[2.6rem]">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="camera-feed"
+              />
+              <div className="camera-vignette" />
+              <div className="scan-line" />
+
+              <div className="absolute top-4 left-4 space-y-2">
+                <span className="glass-pill">LIVE</span>
+                <p className="text-xs text-white/80">Frame your meal</p>
+              </div>
+
+              {hasFrontCamera && (
+                <button
+                  type="button"
+                  onClick={toggleCamera}
+                  disabled={disabled || isCapturing}
+                  className="glass-icon absolute top-4 right-4 h-11 w-11"
+                >
+                  <SwitchCamera className="h-5 w-5" />
+                </button>
+              )}
+
+              {needsTap && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/55">
+                  <button
+                    type="button"
+                    onClick={handleEnableCamera}
+                    className="glass-panel px-5 py-3 text-sm font-semibold"
+                  >
+                    Tap to enable camera
+                  </button>
+                </div>
+              )}
+
+              <div className="absolute inset-x-3 bottom-3">
+                <div className="glass-panel p-4 space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowNote((prev) => !prev)}
+                    className="w-full flex items-center justify-between text-xs text-white/80"
+                  >
+                    <span>Add a short note (optional)</span>
+                    <ChevronUp
+                      className={`h-4 w-4 transition-transform ${
+                        showNote ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {showNote && (
+                    <input
+                      type="text"
+                      placeholder="e.g., oat milk latte with vanilla"
+                      value={context}
+                      onChange={(e) => setContext(e.target.value)}
+                      disabled={disabled || isCapturing}
+                      className="glass-input text-xs py-2"
+                      maxLength={500}
+                    />
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={disabled || isCapturing}
+                      className="glass-icon h-12 w-12"
+                    >
+                      <Upload className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={capturePhoto}
+                      disabled={disabled || isCapturing}
+                      className="shutter-button"
+                    >
+                      {isCapturing ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                      ) : (
+                        <Camera className="h-6 w-6 text-white" />
+                      )}
+                    </button>
+                    {hasFrontCamera ? (
+                      <button
+                        type="button"
+                        onClick={toggleCamera}
+                        disabled={disabled || isCapturing}
+                        className="glass-icon h-12 w-12"
+                      >
+                        <SwitchCamera className="h-5 w-5" />
+                      </button>
+                    ) : (
+                      <div className="h-12 w-12" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] flex-1 min-h-0">
+            <div className="space-y-4 flex flex-col">
+              <div className="camera-frame flex-1">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="camera-feed"
+                />
+                <div className="camera-vignette" />
+                <div className="scan-line" />
+                <div className="absolute top-4 left-4 glass-pill">LIVE</div>
+              </div>
+              <div className="glass-panel px-4 py-3 text-xs text-muted-foreground">
+                Tip: keep the full plate in frame and hold still for a clean capture.
+              </div>
+            </div>
+
+            <div className="glass-panel p-5 space-y-4">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
                   Context
                 </p>
+                <p className="text-sm font-medium">Add a short note (optional)</p>
                 <p className="text-xs text-muted-foreground">
-                  Add a short note (optional)
+                  Great for mixed dishes, sauces, or hidden ingredients.
                 </p>
               </div>
               <input
@@ -361,7 +505,7 @@ export function CameraCapture({
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
                 disabled={disabled || isCapturing}
-                className="glass-input text-xs py-2"
+                className="glass-input"
                 maxLength={500}
               />
 
@@ -370,7 +514,7 @@ export function CameraCapture({
                   size="lg"
                   onClick={capturePhoto}
                   disabled={disabled || isCapturing}
-                  className="h-12 shine"
+                  className="h-14 shine"
                 >
                   {isCapturing ? (
                     <>
@@ -380,7 +524,7 @@ export function CameraCapture({
                   ) : (
                     <>
                       <Camera className="mr-2 h-5 w-5" />
-                      Capture
+                      Capture Photo
                     </>
                   )}
                 </Button>
@@ -397,93 +541,14 @@ export function CameraCapture({
                   size="lg"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={disabled || isCapturing}
-                  className="h-12 w-12"
+                  className="h-14 w-14"
                 >
                   <Upload className="h-5 w-5" />
                 </Button>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="hidden md:grid gap-6 lg:grid-cols-[1.2fr_0.8fr] flex-1 min-h-0">
-          <div className="space-y-4 flex flex-col">
-            <div className="camera-frame flex-1">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="camera-feed"
-              />
-              <div className="camera-vignette" />
-              <div className="scan-line" />
-              <div className="absolute top-4 left-4 glass-pill">LIVE</div>
-            </div>
-            <div className="glass-panel px-4 py-3 text-xs text-muted-foreground">
-              Tip: keep the full plate in frame and hold still for a clean capture.
-            </div>
-          </div>
-
-          <div className="glass-panel p-5 space-y-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-                Context
-              </p>
-              <p className="text-sm font-medium">Add a short note (optional)</p>
-              <p className="text-xs text-muted-foreground">
-                Great for mixed dishes, sauces, or hidden ingredients.
-              </p>
-            </div>
-            <input
-              type="text"
-              placeholder="e.g., oat milk latte with vanilla"
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              disabled={disabled || isCapturing}
-              className="glass-input"
-              maxLength={500}
-            />
-
-            <div className="grid grid-cols-[1fr_auto] gap-3">
-              <Button
-                size="lg"
-                onClick={capturePhoto}
-                disabled={disabled || isCapturing}
-                className="h-14 shine"
-              >
-                {isCapturing ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Capturing...
-                  </>
-                ) : (
-                  <>
-                    <Camera className="mr-2 h-5 w-5" />
-                    Capture Photo
-                  </>
-                )}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={disabled || isCapturing}
-              />
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={disabled || isCapturing}
-                className="h-14 w-14"
-              >
-                <Upload className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </Card>
   );
