@@ -41,25 +41,32 @@ export function AnalyzingState({ imageData }: AnalyzingStateProps) {
     <main className="page-shell flex items-center justify-center">
       <Card className="w-full max-w-md p-6 space-y-6 animate-fade-up">
         {/* Image preview with overlay */}
-        <div className="aspect-square relative rounded-2xl overflow-hidden">
+        <div className="aspect-square relative rounded-3xl overflow-hidden analyze-frame">
           <img
             src={`data:image/jpeg;base64,${imageData}`}
             alt="Captured meal"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/45 flex items-center justify-center">
-            <div className="relative h-14 w-14">
-              <div className="absolute inset-0 rounded-full border-2 border-white/25" />
-              <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-amber-200 animate-spin" />
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="absolute inset-0 analyze-sweep" />
+          <div className="absolute inset-0 analyze-shimmer" />
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative h-28 w-28">
+              <div className="analyze-orb" />
+              <div className="analyze-ring analyze-ring-outer" />
+              <div className="analyze-ring analyze-ring-inner" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-9 w-9 rounded-full border border-white/40 shadow-[0_0_20px_rgba(255,214,140,0.4)]" />
+              </div>
             </div>
           </div>
-          <div className="scan-line" />
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         </div>
 
         {/* Progress section */}
         <div className="space-y-3 text-center">
-          <p className="font-display font-semibold text-lg">
+          <p className="font-display font-semibold text-lg text-glow">
             {message}
             <span className="inline-flex gap-1 ml-2 text-amber-200/70">
               <span className="animate-bounce">·</span>

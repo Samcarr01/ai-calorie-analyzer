@@ -340,6 +340,74 @@ body::after {
     transform: none;
   }
 
+  .analyze-frame {
+    box-shadow:
+      0 22px 50px rgba(2, 2, 6, 0.7),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .analyze-orb {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(255, 232, 190, 0.45), rgba(255, 168, 64, 0.2), transparent 70%);
+    filter: blur(0.5px);
+    animation: analyze-orb 2.8s ease-in-out infinite;
+  }
+
+  .analyze-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 210, 140, 0.45);
+    box-shadow: 0 0 25px rgba(255, 170, 70, 0.35);
+    animation: analyze-spin 2.6s linear infinite;
+  }
+
+  .analyze-ring-inner {
+    inset: 16px;
+    border-color: rgba(255, 230, 190, 0.5);
+    animation-duration: 3.6s;
+    animation-direction: reverse;
+  }
+
+  .analyze-ring-outer {
+    inset: -6px;
+    border-style: dashed;
+    opacity: 0.7;
+  }
+
+  .analyze-sweep {
+    position: absolute;
+    inset: -20%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255, 208, 140, 0.35) 60deg,
+      transparent 120deg,
+      rgba(255, 140, 90, 0.25) 190deg,
+      transparent 260deg
+    );
+    animation: analyze-sweep 3.2s linear infinite;
+    mix-blend-mode: screen;
+    opacity: 0.55;
+  }
+
+  .analyze-shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(255, 225, 180, 0.15) 45%,
+      rgba(255, 190, 120, 0.25) 50%,
+      rgba(255, 225, 180, 0.15) 55%,
+      transparent 75%
+    );
+    transform: translateX(-60%);
+    animation: analyze-shimmer 3.8s ease-in-out infinite;
+  }
+
 }
 
 @layer utilities {
@@ -475,6 +543,56 @@ body::after {
   }
 }
 
+@keyframes analyze-spin {
+  0% {
+    transform: rotate(0deg) scale(0.98);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.02);
+  }
+  100% {
+    transform: rotate(360deg) scale(0.98);
+  }
+}
+
+@keyframes analyze-orb {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes analyze-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes analyze-shimmer {
+  0% {
+    transform: translateX(-70%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.6;
+  }
+  70% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(70%);
+    opacity: 0;
+  }
+}
+
 @keyframes scan-sweep {
   0% {
     transform: translateY(-10%);
@@ -508,6 +626,10 @@ body::after {
   .camera-focus,
   .scan-line,
   .shutter-button::after,
+  .analyze-orb,
+  .analyze-ring,
+  .analyze-sweep,
+  .analyze-shimmer,
   body::after {
     animation: none !important;
   }
