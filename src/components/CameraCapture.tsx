@@ -290,9 +290,9 @@ export function CameraCapture({
 
   // Render camera UI with permission granted
   return (
-    <Card className="w-full max-w-5xl mx-auto overflow-hidden">
-      <div className="p-6 md:p-8 space-y-6">
-        <div className="flex items-start justify-between gap-4">
+    <Card className="w-full h-full max-w-5xl mx-auto overflow-hidden">
+      <div className="p-5 md:p-8 flex flex-col gap-6 h-full">
+        <div className="hidden md:flex items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
               Live scan
@@ -317,9 +317,98 @@ export function CameraCapture({
           )}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-4">
-            <div className="camera-frame">
+        <div className="md:hidden flex-1 min-h-0">
+          <div className="camera-frame h-[78svh] rounded-[2.4rem]">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="camera-feed"
+            />
+            <div className="camera-vignette" />
+            <div className="scan-line" />
+
+            <div className="absolute top-4 left-4 space-y-2">
+              <span className="glass-pill">LIVE</span>
+              <p className="text-xs text-white/80">Frame your meal</p>
+            </div>
+
+            {hasFrontCamera && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleCamera}
+                disabled={disabled || isCapturing}
+                className="absolute top-4 right-4 h-11 w-11"
+              >
+                <SwitchCamera className="h-5 w-5" />
+              </Button>
+            )}
+
+            <div className="absolute inset-x-3 bottom-3 glass-panel p-3 space-y-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                  Context
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Add a short note (optional)
+                </p>
+              </div>
+              <input
+                type="text"
+                placeholder="e.g., oat milk latte with vanilla"
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                disabled={disabled || isCapturing}
+                className="glass-input text-xs py-2"
+                maxLength={500}
+              />
+
+              <div className="grid grid-cols-[1fr_auto] gap-3">
+                <Button
+                  size="lg"
+                  onClick={capturePhoto}
+                  disabled={disabled || isCapturing}
+                  className="h-12 shine"
+                >
+                  {isCapturing ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Capturing...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="mr-2 h-5 w-5" />
+                      Capture
+                    </>
+                  )}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  disabled={disabled || isCapturing}
+                />
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={disabled || isCapturing}
+                  className="h-12 w-12"
+                >
+                  <Upload className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden md:grid gap-6 lg:grid-cols-[1.2fr_0.8fr] flex-1 min-h-0">
+          <div className="space-y-4 flex flex-col">
+            <div className="camera-frame flex-1">
               <video
                 ref={videoRef}
                 autoPlay

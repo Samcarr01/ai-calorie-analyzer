@@ -89,9 +89,27 @@ export default function AppPage() {
   }
 
   return (
-    <main className="page-shell">
-      <div className="mx-auto w-full max-w-5xl flex flex-col gap-6">
-        <header className="flex items-center justify-between gap-4 animate-fade-up">
+    <main className="page-shell pt-6 pb-6 md:pt-12 md:pb-24 px-4 md:px-5 overflow-hidden md:overflow-visible flex flex-col min-h-[100svh] md:min-h-screen">
+      <div className="mx-auto w-full max-w-5xl flex flex-col gap-4 md:gap-6 flex-1 min-h-0">
+        <header className="flex md:hidden items-center justify-between gap-3 animate-fade-up">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/")}
+            className="shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="text-center">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Scanner
+            </p>
+            <p className="font-display text-base font-semibold">Scan your meal</p>
+          </div>
+          <span className="glass-pill">Live</span>
+        </header>
+
+        <header className="hidden md:flex items-center justify-between gap-4 animate-fade-up">
           <div className="space-y-2">
             <span className="glass-pill">Scanner</span>
             <h1 className="font-display text-3xl md:text-4xl font-semibold text-glow">
@@ -120,7 +138,7 @@ export default function AppPage() {
         )}
 
         {/* Camera */}
-        <div className="animate-fade-up delay-1">
+        <div className="animate-fade-up delay-1 flex-1 min-h-0">
           <CameraCapture
             onCapture={handleCapture}
             onError={handleError}
@@ -129,7 +147,7 @@ export default function AppPage() {
         </div>
 
         {/* Footer */}
-        <div className="glass-panel px-4 py-3 text-xs text-muted-foreground text-center">
+        <div className="hidden md:block glass-panel px-4 py-3 text-xs text-muted-foreground text-center">
           Add a quick note for sauces, toppings, or mixed dishes to improve accuracy.
         </div>
       </div>

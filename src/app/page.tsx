@@ -94,13 +94,13 @@ export default function LandingPage() {
                   "Enter Access Code"
                 )}
               </Button>
-              {!isAuthorized && !isLoading && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Instagram className="h-4 w-4" />
-                  <span>DM @samcarr142 on Instagram for access</span>
-                </div>
-              )}
             </div>
+            {!isLoading && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Instagram className="h-4 w-4" />
+                <span>DM @samcarr142 on Instagram for access</span>
+              </div>
+            )}
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Shield className="h-4 w-4 text-amber-200/70" />
               <span>No account needed · Images never stored</span>
