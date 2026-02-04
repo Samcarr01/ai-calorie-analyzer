@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { CtaButton } from "@/components/CtaButton";
 import { Card } from "@/components/ui/card";
 import {
   Lock,
@@ -80,11 +81,10 @@ export default function LandingPage() {
               refine.
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <Button
-                size="lg"
+              <CtaButton
                 onClick={handleCta}
                 disabled={isLoading}
-                className="h-14 px-10 text-base shine"
+                className="cta-button--lg w-full sm:w-auto"
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -93,7 +93,7 @@ export default function LandingPage() {
                 ) : (
                   "Enter Access Code"
                 )}
-              </Button>
+              </CtaButton>
             </div>
             {!isLoading && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -223,13 +223,17 @@ export default function LandingPage() {
                 )}
               </div>
               <div className="flex gap-3">
-                <Button type="submit" disabled={isSubmitting} className="flex-1 h-12">
+                <CtaButton
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="cta-button--sm flex-1"
+                >
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     "Unlock"
                   )}
-                </Button>
+                </CtaButton>
                 <Button
                   type="button"
                   variant="outline"

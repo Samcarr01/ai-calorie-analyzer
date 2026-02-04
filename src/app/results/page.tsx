@@ -6,6 +6,7 @@ import { NutritionCard } from "@/components/NutritionCard";
 import { FoodItemList } from "@/components/FoodItemList";
 import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
 import { Button } from "@/components/ui/button";
+import { CtaButton } from "@/components/CtaButton";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, RotateCcw, RefreshCw, Loader2 } from "lucide-react";
 import type { MealAnalysis, AnalyzeResponse } from "@/types/nutrition";
@@ -191,10 +192,10 @@ export default function ResultsPage() {
                 <p className="text-sm text-destructive">{refineError}</p>
               )}
               <div className="flex gap-2">
-                <Button
+                <CtaButton
                   onClick={handleRefine}
                   disabled={isRefining || !refineContext.trim()}
-                  className="flex-1"
+                  className="cta-button--sm flex-1"
                 >
                   {isRefining ? (
                     <>
@@ -204,7 +205,7 @@ export default function ResultsPage() {
                   ) : (
                     "Re-analyze"
                   )}
-                </Button>
+                </CtaButton>
                 <Button
                   variant="ghost"
                   onClick={() => {
@@ -234,14 +235,13 @@ export default function ResultsPage() {
 
       <div className="fixed bottom-0 left-0 right-0 p-4">
         <div className="mx-auto max-w-5xl glass-panel p-3">
-          <Button
-            className="w-full h-12"
+          <CtaButton
             onClick={handleAnalyzeAnother}
-            size="lg"
+            className="cta-button--lg w-full"
           >
-            <RotateCcw className="mr-2 h-5 w-5" />
+            <RotateCcw className="h-5 w-5" />
             Analyze Another Meal
-          </Button>
+          </CtaButton>
         </div>
       </div>
     </main>

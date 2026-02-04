@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { CtaButton } from "@/components/CtaButton";
 import { Card } from "@/components/ui/card";
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 
@@ -26,13 +26,13 @@ export function ErrorFallback({
             {error.message}
           </p>
         )}
-        <Button
+        <CtaButton
           onClick={resetErrorBoundary || (() => window.location.reload())}
-          size="lg"
+          className="cta-button--lg w-full"
         >
-          <RefreshCcw className="mr-2 h-4 w-4" />
+          <RefreshCcw className="h-4 w-4" />
           Try Again
-        </Button>
+        </CtaButton>
       </Card>
     </main>
   );

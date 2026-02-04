@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { CtaButton } from "@/components/CtaButton";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Camera, Upload, SwitchCamera, Loader2, ChevronUp } from "lucide-react";
@@ -305,11 +306,10 @@ export function CameraCapture({
             disabled={disabled || isCapturing}
           />
 
-          <Button
-            size="lg"
+          <CtaButton
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || isCapturing}
-            className="w-full h-14"
+            className="cta-button--lg w-full"
           >
             {isCapturing ? (
               <>
@@ -322,7 +322,7 @@ export function CameraCapture({
                 Upload Photo
               </>
             )}
-          </Button>
+          </CtaButton>
         </div>
       </Card>
     );
@@ -510,11 +510,10 @@ export function CameraCapture({
               />
 
               <div className="grid grid-cols-[1fr_auto] gap-3">
-                <Button
-                  size="lg"
+                <CtaButton
                   onClick={capturePhoto}
                   disabled={disabled || isCapturing}
-                  className="h-14 shine"
+                  className="cta-button--lg w-full"
                 >
                   {isCapturing ? (
                     <>
@@ -527,7 +526,7 @@ export function CameraCapture({
                       Capture Photo
                     </>
                   )}
-                </Button>
+                </CtaButton>
                 <input
                   ref={fileInputRef}
                   type="file"
