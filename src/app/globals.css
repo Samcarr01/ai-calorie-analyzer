@@ -408,6 +408,95 @@ body::after {
     animation: analyze-shimmer 3.8s ease-in-out infinite;
   }
 
+  .analyze-loader-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    height: 64px;
+    padding: 0 18px;
+    font-family: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 236, 200, 0.9);
+    user-select: none;
+  }
+
+  .analyze-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 999px;
+    background-color: transparent;
+    mask: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 6px,
+      black 7px,
+      black 8px
+    );
+  }
+
+  .analyze-loader::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(255, 213, 140, 0.85) 0%, transparent 50%),
+      radial-gradient(circle at 45% 45%, rgba(255, 146, 92, 0.8) 0%, transparent 45%),
+      radial-gradient(circle at 55% 55%, rgba(255, 226, 176, 0.7) 0%, transparent 45%),
+      radial-gradient(circle at 45% 55%, rgba(255, 191, 125, 0.7) 0%, transparent 45%),
+      radial-gradient(circle at 55% 45%, rgba(255, 120, 80, 0.65) 0%, transparent 45%);
+    mask: radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent 10%,
+      black 25%
+    );
+    animation:
+      analyze-transform 2s infinite alternate,
+      analyze-opacity 4s infinite;
+    animation-timing-function: cubic-bezier(0.6, 0.8, 0.5, 1);
+  }
+
+  .analyze-loader-letter {
+    display: inline-block;
+    opacity: 0;
+    z-index: 2;
+    animation: analyze-letter 4s infinite linear;
+  }
+
+  .analyze-loader-letter:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .analyze-loader-letter:nth-child(2) {
+    animation-delay: 0.205s;
+  }
+  .analyze-loader-letter:nth-child(3) {
+    animation-delay: 0.31s;
+  }
+  .analyze-loader-letter:nth-child(4) {
+    animation-delay: 0.415s;
+  }
+  .analyze-loader-letter:nth-child(5) {
+    animation-delay: 0.521s;
+  }
+  .analyze-loader-letter:nth-child(6) {
+    animation-delay: 0.626s;
+  }
+  .analyze-loader-letter:nth-child(7) {
+    animation-delay: 0.731s;
+  }
+  .analyze-loader-letter:nth-child(8) {
+    animation-delay: 0.837s;
+  }
+  .analyze-loader-letter:nth-child(9) {
+    animation-delay: 0.942s;
+  }
+
 }
 
 @layer utilities {
@@ -593,6 +682,45 @@ body::after {
   }
 }
 
+@keyframes analyze-transform {
+  0% {
+    transform: translateX(-55%);
+  }
+  100% {
+    transform: translateX(55%);
+  }
+}
+
+@keyframes analyze-opacity {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 0;
+  }
+}
+
+@keyframes analyze-letter {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 216, 150, 0.6);
+    transform: scale(1.1) translateY(-2px);
+  }
+  20% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes scan-sweep {
   0% {
     transform: translateY(-10%);
@@ -630,6 +758,9 @@ body::after {
   .analyze-ring,
   .analyze-sweep,
   .analyze-shimmer,
+  .analyze-loader,
+  .analyze-loader::after,
+  .analyze-loader-letter,
   body::after {
     animation: none !important;
   }

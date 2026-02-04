@@ -65,17 +65,18 @@ export function AnalyzingState({ imageData }: AnalyzingStateProps) {
         </div>
 
         {/* Progress section */}
-        <div className="space-y-3 text-center">
-          <p className="font-display font-semibold text-lg text-glow">
-            {message}
-            <span className="inline-flex gap-1 ml-2 text-amber-200/70">
-              <span className="animate-bounce">·</span>
-              <span className="animate-bounce [animation-delay:120ms]">·</span>
-              <span className="animate-bounce [animation-delay:240ms]">·</span>
-            </span>
-          </p>
+        <div className="space-y-4 text-center">
+          <div className="analyze-loader-wrapper" aria-label="Analyzing">
+            {"Analyzing".split("").map((char, index) => (
+              <span key={`${char}-${index}`} className="analyze-loader-letter">
+                {char}
+              </span>
+            ))}
+            <div className="analyze-loader" />
+          </div>
+          <p className="text-xs text-muted-foreground">{message}</p>
           <Progress value={progress} />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Usually takes 2-3 seconds
           </p>
         </div>
