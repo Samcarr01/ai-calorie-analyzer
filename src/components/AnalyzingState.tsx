@@ -51,29 +51,20 @@ export function AnalyzingState({ imageData }: AnalyzingStateProps) {
           <div className="absolute inset-0 analyze-sweep" />
           <div className="absolute inset-0 analyze-shimmer" />
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative h-28 w-28">
-              <div className="analyze-orb" />
-              <div className="analyze-ring analyze-ring-outer" />
-              <div className="analyze-ring analyze-ring-inner" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-9 w-9 rounded-full border border-white/40 shadow-[0_0_20px_rgba(255,214,140,0.4)]" />
-              </div>
+          <div className="absolute inset-x-0 bottom-6 flex justify-center">
+            <div className="analyze-loader-wrapper" aria-label="Analyzing">
+              {"Analyzing".split("").map((char, index) => (
+                <span key={`${char}-${index}`} className="analyze-loader-letter">
+                  {char}
+                </span>
+              ))}
+              <div className="analyze-loader" />
             </div>
           </div>
         </div>
 
         {/* Progress section */}
         <div className="space-y-4 text-center">
-          <div className="analyze-loader-wrapper" aria-label="Analyzing">
-            {"Analyzing".split("").map((char, index) => (
-              <span key={`${char}-${index}`} className="analyze-loader-letter">
-                {char}
-              </span>
-            ))}
-            <div className="analyze-loader" />
-          </div>
           <p className="text-xs text-muted-foreground">{message}</p>
           <Progress value={progress} />
           <p className="text-xs text-muted-foreground">
