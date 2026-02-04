@@ -15,8 +15,11 @@ export function FoodItemList({ items }: FoodItemListProps) {
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Detected Foods</h3>
-        <span className="glass-pill text-[10px]">
+        <div>
+          <p className="text-xs text-muted-foreground">Detected foods</p>
+          <h3 className="font-display font-semibold">Detected Foods</h3>
+        </div>
+        <span className="glass-pill">
           {items.length} ITEM{items.length > 1 ? "S" : ""}
         </span>
       </div>

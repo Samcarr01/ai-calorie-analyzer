@@ -233,7 +233,9 @@ export function CameraCapture({
     return (
       <Card className="w-full max-w-4xl mx-auto p-8 text-center">
         <div className="flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <div className="glass-panel p-3">
+            <Loader2 className="h-6 w-6 animate-spin text-amber-200" />
+          </div>
           <p className="text-sm text-muted-foreground">
             Requesting camera access...
           </p>
@@ -288,92 +290,111 @@ export function CameraCapture({
 
   // Render camera UI with permission granted
   return (
-    <Card className="w-full max-w-4xl mx-auto overflow-hidden">
-      <div className="p-5 space-y-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">Live view</p>
-            <p className="text-sm font-semibold">Frame your meal</p>
+    <Card className="w-full max-w-5xl mx-auto overflow-hidden">
+      <div className="p-6 md:p-8 space-y-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+              Live scan
+            </p>
+            <p className="font-display text-lg md:text-xl font-semibold">
+              Frame your meal
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Keep the plate centered and steady.
+            </p>
           </div>
           {hasFrontCamera && (
             <Button
-              variant="secondary"
+              variant="outline"
               size="icon"
               onClick={toggleCamera}
               disabled={disabled || isCapturing}
+              className="h-11 w-11"
             >
               <SwitchCamera className="h-5 w-5" />
             </Button>
           )}
         </div>
 
-        <div className="camera-frame">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="camera-feed"
-          />
-          <div className="camera-vignette" />
-        </div>
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-4">
+            <div className="camera-frame">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="camera-feed"
+              />
+              <div className="camera-vignette" />
+              <div className="scan-line" />
+              <div className="absolute top-4 left-4 glass-pill">LIVE</div>
+            </div>
+            <div className="glass-panel px-4 py-3 text-xs text-muted-foreground">
+              Tip: keep the full plate in frame and hold still for a clean capture.
+            </div>
+          </div>
 
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">
-            Optional note (helps with mixed dishes or drinks)
-          </p>
-          <input
-            type="text"
-            placeholder="e.g., oat milk latte with vanilla"
-            value={context}
-            onChange={(e) => setContext(e.target.value)}
-            disabled={disabled || isCapturing}
-            className="glass-input"
-            maxLength={500}
-          />
-        </div>
+          <div className="glass-panel p-5 space-y-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                Context
+              </p>
+              <p className="text-sm font-medium">Add a short note (optional)</p>
+              <p className="text-xs text-muted-foreground">
+                Great for mixed dishes, sauces, or hidden ingredients.
+              </p>
+            </div>
+            <input
+              type="text"
+              placeholder="e.g., oat milk latte with vanilla"
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+              disabled={disabled || isCapturing}
+              className="glass-input"
+              maxLength={500}
+            />
 
-        <div className="grid grid-cols-[1fr_auto] gap-3">
-          <Button
-            size="lg"
-            onClick={capturePhoto}
-            disabled={disabled || isCapturing}
-            className="h-14 shine"
-          >
-            {isCapturing ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Capturing...
-              </>
-            ) : (
-              <>
-                <Camera className="mr-2 h-5 w-5" />
-                Capture Photo
-              </>
-            )}
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={disabled || isCapturing}
-          />
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || isCapturing}
-            className="h-14 w-14"
-          >
-            <Upload className="h-5 w-5" />
-          </Button>
+            <div className="grid grid-cols-[1fr_auto] gap-3">
+              <Button
+                size="lg"
+                onClick={capturePhoto}
+                disabled={disabled || isCapturing}
+                className="h-14 shine"
+              >
+                {isCapturing ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Capturing...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="mr-2 h-5 w-5" />
+                    Capture Photo
+                  </>
+                )}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={disabled || isCapturing}
+              />
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={disabled || isCapturing}
+                className="h-14 w-14"
+              >
+                <Upload className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
         </div>
-
-        <p className="text-xs text-muted-foreground">
-          Tip: keep the full plate in frame for sharper results.
-        </p>
       </div>
     </Card>
   );

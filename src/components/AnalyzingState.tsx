@@ -47,10 +47,10 @@ export function AnalyzingState({ imageData }: AnalyzingStateProps) {
             alt="Captured meal"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/45 flex items-center justify-center">
             <div className="relative h-14 w-14">
-              <div className="absolute inset-0 rounded-full border-2 border-white/30" />
-              <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-white animate-spin" />
+              <div className="absolute inset-0 rounded-full border-2 border-white/25" />
+              <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-amber-200 animate-spin" />
             </div>
           </div>
           <div className="scan-line" />
@@ -59,9 +59,9 @@ export function AnalyzingState({ imageData }: AnalyzingStateProps) {
 
         {/* Progress section */}
         <div className="space-y-3 text-center">
-          <p className="font-medium text-lg">
+          <p className="font-display font-semibold text-lg">
             {message}
-            <span className="inline-flex gap-1 ml-2 text-cyan-200/70">
+            <span className="inline-flex gap-1 ml-2 text-amber-200/70">
               <span className="animate-bounce">·</span>
               <span className="animate-bounce [animation-delay:120ms]">·</span>
               <span className="animate-bounce [animation-delay:240ms]">·</span>

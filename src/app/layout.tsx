@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Sora } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({ subsets: ["latin"] });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-body" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
   title: "AI Calorie Analyzer",
@@ -52,7 +53,7 @@ export default function RootLayout({
           content="black-translucent"
         />
       </head>
-      <body className={`${manrope.className} antialiased`}>
+      <body className={`${manrope.variable} ${sora.variable} font-sans antialiased`}>
         <div className="app-shell">
           <div className="ambient-orbs" aria-hidden="true">
             <span className="orb orb-one" />

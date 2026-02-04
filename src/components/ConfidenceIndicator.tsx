@@ -9,8 +9,8 @@ interface ConfidenceIndicatorProps {
 const config = {
   low: {
     dots: 1,
-    color: "bg-red-400",
-    textColor: "text-red-300",
+    color: "bg-rose-400",
+    textColor: "text-rose-300",
     label: "Rough estimate",
     description: "Image quality or food complexity affected accuracy",
   },
@@ -23,8 +23,8 @@ const config = {
   },
   high: {
     dots: 5,
-    color: "bg-emerald-300",
-    textColor: "text-emerald-200",
+    color: "bg-yellow-200",
+    textColor: "text-yellow-200",
     label: "Confident estimate",
     description: "Clear image with recognizable foods",
   },

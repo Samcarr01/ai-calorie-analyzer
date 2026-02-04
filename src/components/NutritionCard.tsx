@@ -20,19 +20,19 @@ export function NutritionCard({ macros }: NutritionCardProps) {
       label: "Protein",
       value: macros.protein,
       unit: "g",
-      color: "bg-cyan-300",
+      color: "bg-amber-300",
     },
     {
       label: "Carbs",
       value: macros.carbohydrates,
       unit: "g",
-      color: "bg-emerald-300",
+      color: "bg-orange-300",
     },
     {
       label: "Fat",
       value: macros.fat,
       unit: "g",
-      color: "bg-amber-200",
+      color: "bg-yellow-200",
     },
   ];
 
@@ -53,7 +53,7 @@ export function NutritionCard({ macros }: NutritionCardProps) {
       label: "Fiber",
       value: macros.fiber,
       unit: "g",
-      color: "bg-violet-300",
+      color: "bg-lime-300",
     });
   }
 

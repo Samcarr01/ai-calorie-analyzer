@@ -101,7 +101,7 @@ export default function ResultsPage() {
     return (
       <main className="page-shell flex items-center justify-center">
         <div className="glass-panel px-6 py-5 flex items-center gap-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-2 border-cyan-300 border-t-transparent" />
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-300 border-t-transparent" />
           <span className="text-sm text-muted-foreground">Loading results</span>
         </div>
       </main>
@@ -110,8 +110,9 @@ export default function ResultsPage() {
 
   return (
     <main className="page-shell pb-28">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <header className="flex items-center gap-3 animate-fade-up">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <header className="flex items-center justify-between gap-4 animate-fade-up">
+          <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -120,12 +121,14 @@ export default function ResultsPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <p className="text-xs text-muted-foreground">Nutrition results</p>
-            <h1 className="text-2xl md:text-3xl font-semibold text-glow">
-              Your meal breakdown
-            </h1>
+            <div>
+              <span className="glass-pill">Summary</span>
+              <h1 className="font-display text-3xl md:text-4xl font-semibold text-glow">
+                Your meal breakdown
+              </h1>
+            </div>
           </div>
+          <span className="glass-pill">Nutrition</span>
         </header>
 
         {imageData && (
@@ -144,7 +147,7 @@ export default function ResultsPage() {
                 <p className="text-xs text-muted-foreground">Total calories</p>
                 <AnimatedNumber
                   value={data.totalCalories}
-                  className="text-3xl font-semibold text-white/90"
+                  className="font-display text-3xl font-semibold text-white/90"
                 />
               </div>
             </div>
@@ -154,7 +157,7 @@ export default function ResultsPage() {
         <Card className="p-6 space-y-4 animate-fade-up delay-2">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold">Macros</h2>
-            <div className="glass-pill text-[10px]">ESTIMATE</div>
+            <div className="glass-pill">Estimate</div>
           </div>
           <NutritionCard macros={data.macros} />
         </Card>
@@ -230,7 +233,7 @@ export default function ResultsPage() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4">
-        <div className="mx-auto max-w-4xl glass-panel p-3">
+        <div className="mx-auto max-w-5xl glass-panel p-3">
           <Button
             className="w-full h-12"
             onClick={handleAnalyzeAnother}

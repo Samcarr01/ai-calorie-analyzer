@@ -77,7 +77,7 @@ export default function AppPage() {
     return (
       <main className="page-shell flex items-center justify-center">
         <div className="glass-panel px-6 py-4 flex items-center gap-3">
-          <div className="animate-spin rounded-full h-4 w-4 border-2 border-cyan-300 border-t-transparent" />
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-amber-300 border-t-transparent" />
           <span className="text-sm text-muted-foreground">Loading...</span>
         </div>
       </main>
@@ -90,15 +90,15 @@ export default function AppPage() {
 
   return (
     <main className="page-shell">
-      <div className="mx-auto w-full max-w-4xl flex flex-col gap-6">
+      <div className="mx-auto w-full max-w-5xl flex flex-col gap-6">
         <header className="flex items-center justify-between gap-4 animate-fade-up">
-          <div>
-            <p className="text-xs text-muted-foreground">Scanner</p>
-            <h1 className="text-2xl md:text-3xl font-semibold text-glow">
+          <div className="space-y-2">
+            <span className="glass-pill">Scanner</span>
+            <h1 className="font-display text-3xl md:text-4xl font-semibold text-glow">
               Scan your meal
             </h1>
             <p className="text-sm text-muted-foreground">
-              Keep the plate centered and steady.
+              Capture a clear frame and let the analysis do the rest.
             </p>
           </div>
           <Button
@@ -130,7 +130,7 @@ export default function AppPage() {
 
         {/* Footer */}
         <div className="glass-panel px-4 py-3 text-xs text-muted-foreground text-center">
-          Add a note for complex dishes to improve accuracy.
+          Add a quick note for sauces, toppings, or mixed dishes to improve accuracy.
         </div>
       </div>
     </main>
